@@ -1,5 +1,6 @@
 package com.blog.app.config.filters;
 
+import com.blog.app.config.jwt.JWTService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,14 +18,18 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
+    private final JWTService jwtService;
 
-    public AuthenticationFilter(AuthenticationManager authenticationManager) {
+    public AuthenticationFilter(AuthenticationManager authenticationManager, JWTService jwtService) {
         this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
         setRequiresAuthenticationRequestMatcher(
                 new AntPathRequestMatcher("/api/1.0/auth",
                         HttpMethod.POST.toString())
@@ -58,7 +63,8 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             , FilterChain chain
             , Authentication authResult) throws IOException, ServletException {
 
-        Cookie cookie = new Cookie("token", "dasdsadasdasd");
+        String token = jwtService.createToken(authResult.getName());
+        Cookie cookie = new Cookie("token", token);
         cookie.setSecure(true);
         response.addCookie(cookie);
 

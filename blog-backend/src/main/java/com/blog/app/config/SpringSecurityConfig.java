@@ -1,6 +1,7 @@
 package com.blog.app.config;
 
 import com.blog.app.config.filters.AuthenticationFilter;
+import com.blog.app.config.jwt.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +13,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -22,12 +22,18 @@ public class SpringSecurityConfig {
 
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
+    private final JWTService jwtService;
 
 
     @Autowired
-    public SpringSecurityConfig(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+    public SpringSecurityConfig(
+            UserDetailsService userDetailsService,
+            PasswordEncoder passwordEncoder,
+            JWTService jwtService
+    ) {
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Bean
@@ -39,10 +45,10 @@ public class SpringSecurityConfig {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeHttpRequests()
                 .requestMatchers(HttpMethod.POST, "/api/1.0/auth").permitAll()
-                .requestMatchers("/api/**").hasRole("USER")
-                .requestMatchers("/secure/info").authenticated()
+                //.requestMatchers("/api/**").hasRole("USER")
+                //.requestMatchers("/secure/info").authenticated()
                 .anyRequest().permitAll();
-        http.addFilter(new AuthenticationFilter(authenticationManager));
+        http.addFilter(new AuthenticationFilter(authenticationManager, jwtService));
         //http.addFilterBefore(new TokenAuthenticationFilter(), AuthenticationFilter.class);
         return http.build();
     }
@@ -55,7 +61,6 @@ public class SpringSecurityConfig {
                 .and()
                 .build();
     }
-
 
 
 }
