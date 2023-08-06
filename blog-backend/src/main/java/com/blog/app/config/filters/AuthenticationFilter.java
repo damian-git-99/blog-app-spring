@@ -18,9 +18,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -66,6 +64,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         String token = jwtService.createToken(authResult.getName());
         Cookie cookie = new Cookie("token", token);
         cookie.setSecure(true);
+        cookie.setPath("/");
         response.addCookie(cookie);
 
         Map<String, Object> body = new HashMap<>();
