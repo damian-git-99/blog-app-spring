@@ -1,9 +1,9 @@
 package com.blog.app.config;
 
 import com.blog.app.config.filters.AuthenticationFilter;
+import com.blog.app.config.filters.JWTAuthenticationFilter;
 import com.blog.app.config.jwt.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -45,10 +45,11 @@ public class SpringSecurityConfig {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeHttpRequests()
                 .requestMatchers(HttpMethod.POST, "/api/1.0/auth").permitAll()
-                //.requestMatchers("/api/**").hasRole("USER")
+                .requestMatchers("/api/**").authenticated()
                 //.requestMatchers("/secure/info").authenticated()
                 .anyRequest().permitAll();
         http.addFilter(new AuthenticationFilter(authenticationManager, jwtService));
+        http.addFilterBefore(new JWTAuthenticationFilter(), AuthenticationFilter.class);
         //http.addFilterBefore(new TokenAuthenticationFilter(), AuthenticationFilter.class);
         return http.build();
     }
