@@ -68,6 +68,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         response.addCookie(cookie);
 
         Map<String, Object> body = new HashMap<>();
+        // todo: return real user data
         body.put("email", "damian@gmail.com");
         body.put("username", "damian");
         body.put("id", "3123123dasdasdasdsada");
