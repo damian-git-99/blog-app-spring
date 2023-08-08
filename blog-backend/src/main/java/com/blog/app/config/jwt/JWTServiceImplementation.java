@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -12,6 +13,7 @@ import java.util.Date;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class JWTServiceImplementation implements JWTService {
 
     private final Date TWO_HOURS = new Date(System.currentTimeMillis() + (10 * 6000 * 120));
@@ -44,7 +46,8 @@ public class JWTServiceImplementation implements JWTService {
             getClaims(authorizationHeader);
             return true;
         } catch (JwtException e) {
-            // Token validation failed
+            // todo: throw custom exception or just return false?
+            log.error("JWT validation failed: {}", e.getMessage());
             throw new RuntimeException("Expired or invalid JWT token");
         }
     }
