@@ -49,7 +49,7 @@ public class SpringSecurityConfig {
                 //.requestMatchers("/secure/info").authenticated()
                 .anyRequest().permitAll();
         http.addFilter(new AuthenticationFilter(authenticationManager, jwtService));
-        http.addFilterBefore(new JWTAuthenticationFilter(), AuthenticationFilter.class);
+        http.addFilterAfter(new JWTAuthenticationFilter(jwtService), AuthenticationFilter.class);
         //http.addFilterBefore(new TokenAuthenticationFilter(), AuthenticationFilter.class);
         return http.build();
     }
