@@ -32,7 +32,7 @@ public class AuthController {
             return handleValidationExceptions(br);
         }
         userService.registerUser(user);
-        return ResponseEntity.ok("register Successfully 2");
+        return ResponseEntity.ok("register Successfully");
     }
 
     @PostMapping("/logout")
@@ -45,7 +45,8 @@ public class AuthController {
 
     @GetMapping("/verify-token")
     String verifyToken() {
-        // todo : implement
+        // todo : verify token
+        // if token is valid, return user info
         return "";
     }
 
