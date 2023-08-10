@@ -3,6 +3,7 @@ package com.blog.app.config;
 import com.blog.app.config.filters.AuthenticationFilter;
 import com.blog.app.config.filters.JWTAuthenticationFilter;
 import com.blog.app.config.jwt.JWTService;
+import com.blog.app.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,17 +24,20 @@ public class SpringSecurityConfig {
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final JWTService jwtService;
+    private final UserService  userService;
 
 
     @Autowired
     public SpringSecurityConfig(
             UserDetailsService userDetailsService,
             PasswordEncoder passwordEncoder,
-            JWTService jwtService
+            JWTService jwtService,
+            UserService userService
     ) {
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.userService = userService;
     }
 
     @Bean
@@ -48,9 +52,8 @@ public class SpringSecurityConfig {
                 .requestMatchers("/api/**").authenticated()
                 //.requestMatchers("/secure/info").authenticated()
                 .anyRequest().permitAll();
-        http.addFilter(new AuthenticationFilter(authenticationManager, jwtService));
+        http.addFilter(new AuthenticationFilter(authenticationManager, jwtService, userService));
         http.addFilterAfter(new JWTAuthenticationFilter(jwtService), AuthenticationFilter.class);
-        //http.addFilterBefore(new TokenAuthenticationFilter(), AuthenticationFilter.class);
         return http.build();
     }
 

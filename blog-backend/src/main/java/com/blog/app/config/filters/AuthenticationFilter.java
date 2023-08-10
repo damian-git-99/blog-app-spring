@@ -1,6 +1,8 @@
 package com.blog.app.config.filters;
 
 import com.blog.app.config.jwt.JWTService;
+import com.blog.app.user.model.User;
+import com.blog.app.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,15 +21,18 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
+    private final UserService userService;
 
-    public AuthenticationFilter(AuthenticationManager authenticationManager, JWTService jwtService) {
+    public AuthenticationFilter(AuthenticationManager authenticationManager, JWTService jwtService, UserService userService) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.userService = userService;
         setRequiresAuthenticationRequestMatcher(
                 new AntPathRequestMatcher("/api/1.0/auth",
                         HttpMethod.POST.toString())
@@ -68,10 +73,12 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         response.addCookie(cookie);
 
         Map<String, Object> body = new HashMap<>();
-        // todo: return real user data
-        body.put("email", "damian@gmail.com");
-        body.put("username", "damian");
-        body.put("id", "3123123dasdasdasdsada");
+        Optional<User> optionalUser = userService.findUserByEmail(authResult.getName());
+        User user = optionalUser.get();
+
+        body.put("email", user.getEmail());
+        body.put("username", user.getUsername());
+        body.put("id", user.getId());
 
         response.setContentType("application/json");
         response.getWriter().write(new ObjectMapper().writeValueAsString(body));
