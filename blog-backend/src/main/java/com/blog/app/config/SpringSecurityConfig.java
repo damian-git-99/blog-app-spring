@@ -49,6 +49,7 @@ public class SpringSecurityConfig {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeHttpRequests()
                 .requestMatchers(HttpMethod.POST, "/api/1.0/auth").permitAll()
+                .requestMatchers(HttpMethod.GET, "/verify-token").authenticated()
                 .requestMatchers("/api/**").authenticated()
                 //.requestMatchers("/secure/info").authenticated()
                 .anyRequest().permitAll();

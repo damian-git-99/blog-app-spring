@@ -1,5 +1,6 @@
 package com.blog.app.config.jwt;
 
+import com.blog.app.config.jwt.exceptions.InvalidJWTException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -48,7 +49,7 @@ public class JWTServiceImplementation implements JWTService {
         } catch (JwtException e) {
             // todo: throw custom exception or just return false?
             log.error("JWT validation failed: {}", e.getMessage());
-            throw new RuntimeException("Expired or invalid JWT token");
+            throw new InvalidJWTException("Expired or invalid JWT token");
         }
     }
 
