@@ -1,11 +1,15 @@
 package com.blog.app.user.service;
 
+import com.blog.app.user.dao.UserDao;
 import com.blog.app.user.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -14,10 +18,31 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
 
+    private final PasswordEncoder passwordEncoder;
+    private final UserDao userDao;
+
+    @Autowired
+    public UserServiceImpl(PasswordEncoder passwordEncoder, UserDao userDao) {
+        this.passwordEncoder = passwordEncoder;
+        this.userDao = userDao;
+    }
+
     @Override
     public Optional<User> findUserByEmail(String email) {
-        User user = new User(1L, "damian", "damian@gmail.com", "123456");
-        return Optional.of(user);
+        return userDao.findUserByEmail(email);
+    }
+
+    @Override
+    @Transactional
+    public void registerUser(User user) {
+        // todo: throw custom exception
+        Optional<User> optionalUser = findUserByEmail(user.getEmail());
+        if (optionalUser.isPresent()) {
+            throw new RuntimeException("User already exists");
+        }
+        String hashedPassword = this.passwordEncoder.encode(user.getPassword());
+        user.setPassword(hashedPassword);
+        userDao.saveUser(user);
     }
 
     @Override
