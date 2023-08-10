@@ -34,7 +34,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         this.jwtService = jwtService;
         this.userService = userService;
         setRequiresAuthenticationRequestMatcher(
-                new AntPathRequestMatcher("/api/1.0/auth",
+                new AntPathRequestMatcher("/login",
                         HttpMethod.POST.toString())
         );
     }
