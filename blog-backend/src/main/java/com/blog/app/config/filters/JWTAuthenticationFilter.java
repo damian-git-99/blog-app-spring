@@ -50,7 +50,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 try {
                     if (jwtService.validateToken(cookie.getValue())) {
                         Map claims = jwtService.getClaims(cookie.getValue());
-                        String subject = (String) claims.get("subject");
+                        String subject = (String) claims.get("sub");
                         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(subject, null, authorities);
                         SecurityContextHolder.getContext().setAuthentication(auth);
                         log.info("Authentication successful by token");

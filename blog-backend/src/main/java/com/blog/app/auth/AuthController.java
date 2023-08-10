@@ -14,17 +14,21 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 public class AuthController {
 
     private final UserService userService;
+    private final JWTService jwtService;
 
     @Autowired
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, JWTService jwtService) {
         this.userService = userService;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/register")
@@ -45,9 +49,21 @@ public class AuthController {
     }
 
     @GetMapping("/verify-token")
-    String verifyToken() {
-        // todo : return real user info
-        return "valid token";
+    ResponseEntity<?> verifyToken(HttpServletResponse response, Principal principal) {
+        Optional<User> optionalUser = userService.findUserByEmail(principal.getName());
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.badRequest().body("user not found");
+        }
+        User user = optionalUser.get();
+        Cookie cookie = new Cookie("token", jwtService.createToken(user.getEmail()));
+        cookie.setMaxAge(60 * 60 * 24 * 365);
+        response.addCookie(cookie);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("id", user.getId());
+        body.put("username", user.getUsername());
+        body.put("email", user.getEmail());
+        return ResponseEntity.ok(body);
     }
 
     /**
