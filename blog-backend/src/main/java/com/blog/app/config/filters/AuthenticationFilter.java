@@ -10,6 +10,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,13 +24,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Slf4j
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
     private final UserService userService;
 
-    public AuthenticationFilter(AuthenticationManager authenticationManager, JWTService jwtService, UserService userService) {
+    public AuthenticationFilter(
+            AuthenticationManager authenticationManager,
+            JWTService jwtService,
+            UserService userService
+    ) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.userService = userService;
@@ -44,7 +50,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     public Authentication attemptAuthentication(
             HttpServletRequest request,
             HttpServletResponse response) throws AuthenticationException {
-
+        log.info("attempt Authentication request");
         String email = "";
         String password = "";
 
@@ -52,7 +58,9 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             Map body = new ObjectMapper().readValue(request.getInputStream(), Map.class);
             email = body.get("email").toString();
             password = body.get("password").toString();
+            log.info("email: {}, password: {}", email, password);
         } catch (Exception e) {
+            log.error("Error reading request body: {}", e.getMessage());
             e.printStackTrace();
         }
 
@@ -83,6 +91,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         response.setContentType("application/json");
         response.getWriter().write(new ObjectMapper().writeValueAsString(body));
         response.setStatus(HttpServletResponse.SC_OK);
+        log.info("successful Authentication request: {}", authResult.getName());
     }
 
     @Override
@@ -95,5 +104,6 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         response.getWriter().write(new ObjectMapper().writeValueAsString(body));
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
+        log.error("unsuccessful Authentication request: {}", failed.getLocalizedMessage());
     }
 }

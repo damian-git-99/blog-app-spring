@@ -27,13 +27,15 @@ public class JWTServiceImplementation implements JWTService {
         Claims claims = Jwts.claims();
         claims.putAll(payload);
 
-        return Jwts.builder()
+        String token = Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date())
                 .setExpiration(TWO_HOURS)
                 .signWith(SECRET_KEY)
                 .compact();
+        log.info("JWT token created for subject: {}", subject);
+        return token;
     }
 
     @Override
@@ -45,6 +47,7 @@ public class JWTServiceImplementation implements JWTService {
     public boolean validateToken(String authorizationHeader) {
         try {
             getClaims(authorizationHeader);
+            log.info("JWT token validated successfully");
             return true;
         } catch (JwtException e) {
             // todo: throw custom exception or just return false?
