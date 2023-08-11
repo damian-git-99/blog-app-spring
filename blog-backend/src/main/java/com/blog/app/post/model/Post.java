@@ -14,4 +14,7 @@ public class Post {
     private String content;
     private String image;
     private String category;
+    private int time_to_read;
+    private boolean isPublish;
+    // todo: add created_at and updated_at
 }

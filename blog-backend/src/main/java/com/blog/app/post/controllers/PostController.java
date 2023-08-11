@@ -22,5 +22,14 @@ public class PostController {
         return List.of(post1);
     }
 
+    // todo: create post
+    // todo: get recently posts
+    // todo: get my posts
+    // todo: delete post by id
+    // todo: get post by id
+    // todo: edit post
+    // todo: togglePublicationStatus
+    // todo: getPostsByUsername
+
 
 }
