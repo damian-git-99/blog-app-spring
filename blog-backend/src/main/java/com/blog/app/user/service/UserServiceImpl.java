@@ -1,6 +1,7 @@
 package com.blog.app.user.service;
 
 import com.blog.app.user.dao.UserDao;
+import com.blog.app.user.exceptions.UserAlreadyExistsException;
 import com.blog.app.user.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +38,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional
     public void registerUser(User user) {
-        // todo: throw custom exception
         Optional<User> optionalUser = findUserByEmail(user.getEmail());
         if (optionalUser.isPresent()) {
-            throw new RuntimeException("User already exists");
+            throw new UserAlreadyExistsException("Email already exists");
         }
         String hashedPassword = this.passwordEncoder.encode(user.getPassword());
         user.setPassword(hashedPassword);

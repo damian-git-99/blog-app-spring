@@ -1,7 +1,13 @@
 package com.blog.app.config.jwt.exceptions;
 
-public class InvalidJWTException extends RuntimeException {
+import com.blog.app.exceptions.CustomException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+
+@Slf4j
+public class InvalidJWTException extends CustomException {
     public InvalidJWTException(String message) {
-        super(message);
+        super(message, HttpStatus.BAD_REQUEST);
+        log.error("JWT validation failed: {}", message);
     }
 }

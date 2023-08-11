@@ -50,8 +50,6 @@ public class JWTServiceImplementation implements JWTService {
             log.info("JWT token validated successfully");
             return true;
         } catch (JwtException e) {
-            // todo: throw custom exception or just return false?
-            log.error("JWT validation failed: {}", e.getMessage());
             throw new InvalidJWTException("Expired or invalid JWT token");
         }
     }
