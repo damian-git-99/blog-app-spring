@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,5 +18,7 @@ public class Post {
     private String category;
     private int time_to_read;
     private boolean isPublish;
-    // todo: add created_at and updated_at
+    private Long userId;
+    private Date created_at;
+    private Date updated_at;
 }
