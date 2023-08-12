@@ -18,8 +18,10 @@ CREATE TABLE IF NOT EXISTS blog_app.posts
     image        VARCHAR(255),
     category     VARCHAR(255) NOT NULL,
     time_to_read INT          NOT NULL,
-    isPublished  BOOLEAN      NOT NULL,
+    isPublish  BOOLEAN      NOT NULL,
     user_id      INT          NOT NULL,
+    created_at   DATETIME     NOT NULL,
+    updated_at   DATETIME     NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
