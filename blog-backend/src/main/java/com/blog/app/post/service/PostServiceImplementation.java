@@ -91,7 +91,6 @@ public class PostServiceImplementation implements PostService {
             log.info("Checking if post belongs to authenticated user");
             Principal principal = SecurityContextHolder
                     .getContext().getAuthentication();
-
             String email = principal.getName();
             Optional<User> optionalUser = userService.findUserByEmail(email);
 

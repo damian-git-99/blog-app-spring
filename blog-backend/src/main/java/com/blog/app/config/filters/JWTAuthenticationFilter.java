@@ -1,7 +1,6 @@
 package com.blog.app.config.filters;
 
-import com.blog.app.config.jwt.JWTService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.blog.app.config.authentication.JWTAuthentication;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -9,8 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -19,12 +18,10 @@ import java.util.*;
 
 @Slf4j
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
+    private final AuthenticationManager authenticationManager;
 
-    private final JWTService jwtService;
-    private final ObjectMapper mapper = new ObjectMapper();
-
-    public JWTAuthenticationFilter(JWTService jwtService) {
-        this.jwtService = jwtService;
+    public JWTAuthenticationFilter(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
     }
 
     @Override
@@ -46,23 +43,16 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 String token = optionalCookie.get().getValue();
                 log.info("token found: {}", token);
                 Cookie cookie = optionalCookie.get();
-                Collection<? extends GrantedAuthority> authorities = Collections.emptyList();
-                try {
-                    if (jwtService.validateToken(cookie.getValue())) {
-                        Map claims = jwtService.getClaims(cookie.getValue());
-                        String subject = (String) claims.get("sub");
-                        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(subject, null, authorities);
-                        SecurityContextHolder.getContext().setAuthentication(auth);
-                        log.info("Authentication successful by token");
-                    }
-                } catch (Exception ex) {
+                JWTAuthentication jwtAuthentication = new JWTAuthentication(token);
+                Authentication auth = authenticationManager.authenticate(jwtAuthentication);
+                if (auth.isAuthenticated()) {
+                    log.info("Authentication successful by token");
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                } else {
                     log.info("Clearing Spring Security Context");
                     SecurityContextHolder.clearContext();
-                    Map<String, Object> errors = new HashMap<>();
-                    errors.put("error", ex.getMessage());
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                    mapper.writeValue(response.getWriter(), errors);
                 }
             }
 

@@ -3,6 +3,7 @@ package com.blog.app.config;
 import com.blog.app.config.filters.AuthenticationFilter;
 import com.blog.app.config.filters.JWTAuthenticationFilter;
 import com.blog.app.config.jwt.JWTService;
+import com.blog.app.config.providers.JWTAuthenticationProvider;
 import com.blog.app.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -33,7 +34,7 @@ public class SpringSecurityConfig {
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final JWTService jwtService;
-    private final UserService  userService;
+    private final UserService userService;
 
 
     @Autowired
@@ -63,7 +64,7 @@ public class SpringSecurityConfig {
                 //.requestMatchers("/secure/info").authenticated()
                 .anyRequest().permitAll();
         http.addFilter(new AuthenticationFilter(authenticationManager, jwtService, userService));
-        http.addFilterAfter(new JWTAuthenticationFilter(jwtService), AuthenticationFilter.class);
+        http.addFilterAfter(new JWTAuthenticationFilter(authenticationManager), AuthenticationFilter.class);
         return http.build();
     }
 
@@ -73,13 +74,14 @@ public class SpringSecurityConfig {
                 .userDetailsService(userDetailsService)
                 .passwordEncoder(passwordEncoder)
                 .and()
+                .authenticationProvider(new JWTAuthenticationProvider(jwtService))
                 .build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://vite-frontend:5173","http://localhost:5173"));
+        config.setAllowedOrigins(List.of("http://vite-frontend:5173", "http://localhost:5173"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));
         config.setAllowCredentials(true);
