@@ -137,8 +137,8 @@ public class PostDaoJDBC implements PostDao {
     }
 
     @Override
-    public boolean togglePublicationStatus() {
-        String query = "UPDATE posts SET isPublish = NOT isPublish";
+    public boolean togglePublicationStatus(Long postId) {
+        String query = "UPDATE posts SET isPublish = NOT isPublish WHERE id = ?";
         log.info("Executing SQL query: {}", query);
         int res = jdbc.update(query);
         if (res == 1) log.info("Posts publication status toggled successfully");

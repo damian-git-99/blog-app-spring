@@ -24,6 +24,8 @@ import java.util.Optional;
 @Slf4j
 public class AuthController {
 
+    // todo: mover todo esto al package de user
+
     private final UserService userService;
     private final JWTService jwtService;
 
