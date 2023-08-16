@@ -1,6 +1,6 @@
-package com.blog.app.config.filters;
+package com.blog.app.config.security.filters;
 
-import com.blog.app.config.jwt.JWTService;
+import com.blog.app.config.security.jwt.JWTService;
 import com.blog.app.user.model.User;
 import com.blog.app.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;

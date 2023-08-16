@@ -1,9 +1,9 @@
-package com.blog.app.config;
+package com.blog.app.config.security;
 
-import com.blog.app.config.filters.AuthenticationFilter;
-import com.blog.app.config.filters.JWTAuthenticationFilter;
-import com.blog.app.config.jwt.JWTService;
-import com.blog.app.config.providers.JWTAuthenticationProvider;
+import com.blog.app.config.security.filters.AuthenticationFilter;
+import com.blog.app.config.security.filters.JWTAuthenticationFilter;
+import com.blog.app.config.security.jwt.JWTService;
+import com.blog.app.config.security.providers.JWTAuthenticationProvider;
 import com.blog.app.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;

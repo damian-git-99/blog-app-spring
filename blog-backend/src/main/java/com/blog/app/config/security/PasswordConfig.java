@@ -1,4 +1,4 @@
-package com.blog.app.config;
+package com.blog.app.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

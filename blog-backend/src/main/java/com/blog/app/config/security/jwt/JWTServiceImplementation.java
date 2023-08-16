@@ -1,6 +1,6 @@
-package com.blog.app.config.jwt;
+package com.blog.app.config.security.jwt;
 
-import com.blog.app.config.jwt.exceptions.InvalidJWTException;
+import com.blog.app.config.security.jwt.exceptions.InvalidJWTException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;

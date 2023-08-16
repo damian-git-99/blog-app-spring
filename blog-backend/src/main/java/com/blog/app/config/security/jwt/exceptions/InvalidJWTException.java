@@ -1,4 +1,4 @@
-package com.blog.app.config.jwt.exceptions;
+package com.blog.app.config.security.jwt.exceptions;
 
 import com.blog.app.exceptions.CustomException;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package com.blog.app.config.authentication;
+package com.blog.app.config.security.authentication;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

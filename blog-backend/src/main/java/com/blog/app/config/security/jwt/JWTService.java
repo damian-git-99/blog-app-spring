@@ -1,6 +1,4 @@
-package com.blog.app.config.jwt;
-
-import io.jsonwebtoken.Claims;
+package com.blog.app.config.security.jwt;
 
 import java.util.Map;
 

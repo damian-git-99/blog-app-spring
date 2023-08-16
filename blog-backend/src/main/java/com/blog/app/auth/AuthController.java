@@ -1,6 +1,6 @@
 package com.blog.app.auth;
 
-import com.blog.app.config.jwt.JWTService;
+import com.blog.app.config.security.jwt.JWTService;
 import com.blog.app.user.model.User;
 import com.blog.app.user.service.UserService;
 import jakarta.servlet.http.Cookie;

@@ -1,6 +1,6 @@
-package com.blog.app.config.filters;
+package com.blog.app.config.security.filters;
 
-import com.blog.app.config.authentication.JWTAuthentication;
+import com.blog.app.config.security.authentication.JWTAuthentication;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;

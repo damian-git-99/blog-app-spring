@@ -1,7 +1,7 @@
-package com.blog.app.config.providers;
+package com.blog.app.config.security.providers;
 
-import com.blog.app.config.authentication.JWTAuthentication;
-import com.blog.app.config.jwt.JWTService;
+import com.blog.app.config.security.authentication.JWTAuthentication;
+import com.blog.app.config.security.jwt.JWTService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
