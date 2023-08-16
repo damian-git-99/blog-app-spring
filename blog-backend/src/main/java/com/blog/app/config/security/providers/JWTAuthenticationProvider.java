@@ -9,6 +9,10 @@ import org.springframework.security.core.AuthenticationException;
 
 import java.util.Map;
 
+/**
+ * Custom implementation of Spring Security's AuthenticationProvider for JWT-based authentication.
+ * This provider validates and processes JWT tokens, updating the authentication object accordingly.
+ */
 @Slf4j
 public class JWTAuthenticationProvider implements AuthenticationProvider {
 
