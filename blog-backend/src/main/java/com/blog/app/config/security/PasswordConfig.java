@@ -10,6 +10,7 @@ public class PasswordConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+        // todo: change to BCryptPasswordEncode
         return NoOpPasswordEncoder.getInstance();
     }
 

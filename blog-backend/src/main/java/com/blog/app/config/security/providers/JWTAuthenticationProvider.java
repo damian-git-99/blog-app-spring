@@ -22,17 +22,18 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         JWTAuthentication jwtAuthentication = (JWTAuthentication) authentication;
-        try {
-            jwtService.validateToken(jwtAuthentication.getToken());
-            jwtAuthentication.setAuthenticated(true);
-            Map claims = jwtService.getClaims(jwtAuthentication.getToken());
-            String subject = (String) claims.get("sub");
-            jwtAuthentication.setName(subject);
-            return jwtAuthentication;
-        } catch (Exception e) {
+        String token = jwtAuthentication.getToken();
+        if (!jwtService.validateToken(token)) {
             log.error("Invalid token");
             return jwtAuthentication;
         }
+
+        jwtAuthentication.setAuthenticated(true);
+        Map<String, Object> claims = jwtService.getClaims(jwtAuthentication.getToken());
+        String subject = (String) claims.get("sub");
+        jwtAuthentication.setName(subject);
+        return jwtAuthentication;
+
     }
 
     @Override

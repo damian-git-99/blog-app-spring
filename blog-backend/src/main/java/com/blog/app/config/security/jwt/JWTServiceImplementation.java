@@ -50,7 +50,7 @@ public class JWTServiceImplementation implements JWTService {
             log.info("JWT token validated successfully");
             return true;
         } catch (JwtException e) {
-            throw new InvalidJWTException("Expired or invalid JWT token");
+            return false;
         }
     }
 
