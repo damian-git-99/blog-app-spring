@@ -14,9 +14,11 @@ public interface PostDao {
 
     List<Post> getRecentlyPublishedPosts();
 
-    List<Post> getMyPostsById(Long userId);
+    List<Post> getPostsByUserId(Long userId);
 
-    List<Post> getPostsByUsername(String username);
+    List<Post> getPublicPostsByUsername(String username);
+
+    List<Post> getAllPostsByUsername(String username);
 
     Optional<Post> getPostById(Long postId);
 

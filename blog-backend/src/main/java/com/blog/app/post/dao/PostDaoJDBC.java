@@ -97,7 +97,7 @@ public class PostDaoJDBC implements PostDao {
     }
 
     @Override
-    public List<Post> getMyPostsById(Long userId) {
+    public List<Post> getPostsByUserId(Long userId) {
         String query = "SELECT * FROM posts WHERE user_id = ?";
         log.info("Executing SQL query: {}", query);
         List<Post> posts = jdbc.query(
@@ -109,7 +109,19 @@ public class PostDaoJDBC implements PostDao {
     }
 
     @Override
-    public List<Post> getPostsByUsername(String username) {
+    public List<Post> getPublicPostsByUsername(String username) {
+        String query = "SELECT * FROM posts WHERE user_id = (SELECT id FROM users WHERE username = ?) AND posts.isPublish = 1";
+        log.info("Executing SQL query: {}", query);
+        List<Post> posts = jdbc.query(
+                query,
+                BeanPropertyRowMapper.newInstance(Post.class),
+                username
+        );
+        return posts;
+    }
+
+    @Override
+    public List<Post> getAllPostsByUsername(String username) {
         String query = "SELECT * FROM posts WHERE user_id = (SELECT id FROM users WHERE username = ?)";
         log.info("Executing SQL query: {}", query);
         List<Post> posts = jdbc.query(
