@@ -10,6 +10,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Post {
+    // todo: add validations
     private Long id;
     private String title;
     private String summary;
