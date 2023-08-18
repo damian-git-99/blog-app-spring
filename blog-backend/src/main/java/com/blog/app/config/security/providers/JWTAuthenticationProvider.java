@@ -36,6 +36,8 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
         Map<String, Object> claims = jwtService.getClaims(jwtAuthentication.getToken());
         String subject = (String) claims.get("sub");
         jwtAuthentication.setName(subject);
+        jwtAuthentication.setEmail((String) claims.get("email"));
+        jwtAuthentication.setUserId((Long) claims.get("id"));
         return jwtAuthentication;
 
     }

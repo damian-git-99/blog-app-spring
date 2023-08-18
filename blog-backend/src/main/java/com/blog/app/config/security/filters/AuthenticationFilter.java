@@ -74,15 +74,15 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             , FilterChain chain
             , Authentication authResult) throws IOException, ServletException {
 
-        String token = jwtService.createToken(authResult.getName());
+        Map<String, Object> body = new HashMap<>();
+        Optional<User> optionalUser = userService.findUserByEmail(authResult.getName());
+        User user = optionalUser.get();
+
+        String token = jwtService.createToken(authResult.getName(), createClaims(user));
         Cookie cookie = new Cookie("token", token);
         cookie.setSecure(true);
         cookie.setPath("/");
         response.addCookie(cookie);
-
-        Map<String, Object> body = new HashMap<>();
-        Optional<User> optionalUser = userService.findUserByEmail(authResult.getName());
-        User user = optionalUser.get();
 
         body.put("email", user.getEmail());
         body.put("username", user.getUsername());
@@ -105,5 +105,12 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
         log.error("unsuccessful Authentication request: {}", failed.getLocalizedMessage());
+    }
+
+    private Map<String, Object> createClaims(User user) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("username", user.getUsername());
+        claims.put("id", user.getId());
+        return claims;
     }
 }
