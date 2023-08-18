@@ -29,7 +29,7 @@ public class PostController {
     // todo: get post by id
     // todo: edit post
     // todo: togglePublicationStatus
-    // todo: getPostsByUsername
+    // todo: getAllPostsByUsername
 
 
 }
