@@ -37,7 +37,22 @@ public class PostServiceImplementation implements PostService {
 
     @Override
     public boolean editPost(Post post) {
-        return false;
+        Optional<Post> optionalPost = postDao.getPostById(post.getId());
+        if (optionalPost.isEmpty()) {
+            throw new PostNotFoundException("Post not found");
+        }
+        Post oldPost = optionalPost.get();
+        if (!isPostOwnedByAuthenticatedUser(post)) {
+            throw new PostNotFoundException("Post not found");
+        }
+        post.setTitle(mergeNullableFields(oldPost.getTitle(), post.getTitle()));
+        post.setSummary(oldPost.getSummary() == null ? post.getSummary() : oldPost.getSummary());
+        post.setContent(oldPost.getContent() == null ? post.getContent() : oldPost.getSummary());
+        // todo: handle image upload
+        post.setCategory(mergeNullableFields(oldPost.getCategory(), post.getCategory()));
+        post.setTime_to_read(mergeNullableFields(oldPost.getTime_to_read(), post.getTime_to_read()));
+        post.setUpdated_at(new Date());
+        return postDao.editPost(post);
     }
 
     @Override
@@ -138,6 +153,28 @@ public class PostServiceImplementation implements PostService {
         }
 
         return principal;
+    }
+
+    /**
+     * Merges two values, prioritizing the new value if it's not null.
+     *
+     * @param oldValue The original value.
+     * @param newValue The new value.
+     * @return The merged value, preferring newValue if it's not null, otherwise oldValue.
+     */
+    private String mergeNullableFields(String oldValue, String newValue) {
+        return newValue == null ? oldValue : newValue;
+    }
+
+    /**
+     * Merges two values, prioritizing the new value if it's not null.
+     *
+     * @param oldValue The original value.
+     * @param newValue The new value.
+     * @return The merged value, preferring newValue if it's not null, otherwise oldValue.
+     */
+    private int mergeNullableFields(int oldValue, int newValue) {
+        return newValue == 0 ? oldValue : newValue;
     }
 
 }
