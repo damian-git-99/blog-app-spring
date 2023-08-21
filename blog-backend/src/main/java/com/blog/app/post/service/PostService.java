@@ -1,15 +1,16 @@
 package com.blog.app.post.service;
 
 import com.blog.app.post.model.Post;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface PostService {
 
-    boolean createPost(Post post);
+    boolean createPost(Post post, MultipartFile image);
 
-    boolean editPost(Post post);
+    boolean editPost(Post post, MultipartFile image);
 
     boolean deletePostById(Long id);
 

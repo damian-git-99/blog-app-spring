@@ -1,6 +1,7 @@
 package com.blog.app.post.service;
 
 import com.blog.app.config.security.authentication.JWTAuthentication;
+import com.blog.app.config.security.image.ImageService;
 import com.blog.app.post.dao.PostDao;
 import com.blog.app.post.exceptions.PostNotFoundException;
 import com.blog.app.post.model.Post;
@@ -8,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
@@ -19,24 +21,30 @@ import java.util.Optional;
 public class PostServiceImplementation implements PostService {
 
     private final PostDao postDao;
+    private final ImageService imageService;
 
     @Autowired
-    public PostServiceImplementation(PostDao postDao) {
+    public PostServiceImplementation(PostDao postDao, ImageService imageService) {
         this.postDao = postDao;
+        this.imageService = imageService;
     }
 
     @Override
-    public boolean createPost(Post post) {
+    public boolean createPost(Post post, MultipartFile image) {
+        log.info("Creating post");
         JWTAuthentication authenticatedUser = getAuthenticatedUser();
         post.setUserId(authenticatedUser.getUserId());
         post.setCreated_at(new Date());
         post.setUpdated_at(new Date());
-        // todo: image upload
+        if (image != null && !image.isEmpty()) {
+            String imageId = imageService.uploadImage(image);
+            post.setImage(imageId);
+        }
         return postDao.savePost(post);
     }
 
     @Override
-    public boolean editPost(Post post) {
+    public boolean editPost(Post post, MultipartFile image) {
         Optional<Post> optionalPost = postDao.getPostById(post.getId());
         if (optionalPost.isEmpty()) {
             throw new PostNotFoundException("Post not found");
@@ -48,10 +56,18 @@ public class PostServiceImplementation implements PostService {
         post.setTitle(mergeNullableFields(oldPost.getTitle(), post.getTitle()));
         post.setSummary(oldPost.getSummary() == null ? post.getSummary() : oldPost.getSummary());
         post.setContent(oldPost.getContent() == null ? post.getContent() : oldPost.getSummary());
-        // todo: handle image upload
         post.setCategory(mergeNullableFields(oldPost.getCategory(), post.getCategory()));
         post.setTime_to_read(mergeNullableFields(oldPost.getTime_to_read(), post.getTime_to_read()));
         post.setUpdated_at(new Date());
+
+        if (image != null && !image.isEmpty()) {
+            String imageId = imageService.uploadImage(image);
+            if (post.getImage() != null && !post.getImage().isEmpty()) {
+                imageService.deleteImage(post.getImage());
+            }
+            post.setImage(imageId);
+        }
+
         return postDao.editPost(post);
     }
 
@@ -64,19 +80,26 @@ public class PostServiceImplementation implements PostService {
         if (!isPostOwnedByAuthenticatedUser(optionalPost.get())) {
             throw new PostNotFoundException("Post not found");
         }
+
+        Post post = optionalPost.get();
+
+        if (post.getImage() != null && !post.getImage().isEmpty()) {
+            imageService.deleteImage(post.getImage());
+        }
+
         return postDao.deletePostById(id);
     }
 
     @Override
     public List<Post> getRecentlyPublishedPosts() {
-        return postDao.getRecentlyPublishedPosts();
+        return updatePostImageUrls(postDao.getRecentlyPublishedPosts());
     }
 
     @Override
     public List<Post> getPostsOfAuthenticatedUser(Long userId) {
         JWTAuthentication authenticatedUser = getAuthenticatedUser();
         postDao.getPostsByUserId(authenticatedUser.getUserId());
-        return postDao.getPostsByUserId(authenticatedUser.getUserId());
+        return updatePostImageUrls(postDao.getPostsByUserId(authenticatedUser.getUserId()));
     }
 
     @Override
@@ -87,7 +110,7 @@ public class PostServiceImplementation implements PostService {
             return postDao.getAllPostsByUsername(username);
         }
 
-        return postDao.getPublicPostsByUsername(username);
+        return updatePostImageUrls(postDao.getPublicPostsByUsername(username));
     }
 
     @Override
@@ -102,7 +125,7 @@ public class PostServiceImplementation implements PostService {
             throw new PostNotFoundException("Post not found");
         }
 
-        return Optional.of(post);
+        return Optional.of(updatePostImageUrls(post));
     }
 
     @Override
@@ -175,6 +198,26 @@ public class PostServiceImplementation implements PostService {
      */
     private int mergeNullableFields(int oldValue, int newValue) {
         return newValue == 0 ? oldValue : newValue;
+    }
+
+    /**
+     * Updates the image name to the full image URL in a Post object.
+     * This is necessary because the Post model stores only the image name, not the full URL.
+     *
+     * @param post The Post object to which the image URL will be updated.
+     * @return The updated Post object with the full image URL.
+     */
+    private Post updatePostImageUrls(Post post) {
+        if (post.getImage() != null && !post.getImage().isEmpty()) {
+            post.setImage(imageService.getImageUrl(post.getImage()));
+        }
+        return post;
+    }
+
+    private List<Post> updatePostImageUrls(List<Post> posts) {
+        return posts.stream()
+                .map(this::updatePostImageUrls)
+                .toList();
     }
 
 }
