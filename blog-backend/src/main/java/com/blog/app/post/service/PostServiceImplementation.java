@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -38,7 +37,7 @@ public class PostServiceImplementation implements PostService {
         LocalDateTime now = LocalDateTime.now();
         post.setCreated_at(now);
         post.setUpdated_at(now);
-        if (image != null && !image.isEmpty()) {
+        if (isImageNotEmpty(image)) {
             String imageId = imageService.uploadImage(image);
             post.setImage(imageId);
         }
@@ -62,10 +61,10 @@ public class PostServiceImplementation implements PostService {
         post.setTime_to_read(mergeNullableFields(oldPost.getTime_to_read(), post.getTime_to_read()));
         post.setUpdated_at(LocalDateTime.now());
 
-        if (image != null && !image.isEmpty()) {
+        if (isImageNotEmpty(image)) {
             String imageId = imageService.uploadImage(image);
-            if (post.getImage() != null && !post.getImage().isEmpty()) {
-                imageService.deleteImage(post.getImage());
+            if (oldPost.hasImage()) {
+                imageService.deleteImage(oldPost.getImage());
             }
             post.setImage(imageId);
         }
@@ -85,7 +84,7 @@ public class PostServiceImplementation implements PostService {
 
         Post post = optionalPost.get();
 
-        if (post.getImage() != null && !post.getImage().isEmpty()) {
+        if (post.hasImage()) {
             imageService.deleteImage(post.getImage());
         }
 
@@ -222,4 +221,11 @@ public class PostServiceImplementation implements PostService {
                 .toList();
     }
 
+    private boolean isImageEmpty(MultipartFile image) {
+        return image == null || image.isEmpty();
+    }
+
+    private boolean isImageNotEmpty(MultipartFile image) {
+        return !isImageEmpty(image);
+    }
 }

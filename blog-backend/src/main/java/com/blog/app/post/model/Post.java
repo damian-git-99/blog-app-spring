@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -29,4 +28,8 @@ public class Post {
     private Long userId;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
+
+    public boolean hasImage() {
+        return image != null && !image.isEmpty();
+    }
 }
