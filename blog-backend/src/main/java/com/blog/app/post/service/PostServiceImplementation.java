@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -34,8 +35,9 @@ public class PostServiceImplementation implements PostService {
         log.info("Creating post");
         JWTAuthentication authenticatedUser = getAuthenticatedUser();
         post.setUserId(authenticatedUser.getUserId());
-        post.setCreated_at(new Date());
-        post.setUpdated_at(new Date());
+        LocalDateTime now = LocalDateTime.now();
+        post.setCreated_at(now);
+        post.setUpdated_at(now);
         if (image != null && !image.isEmpty()) {
             String imageId = imageService.uploadImage(image);
             post.setImage(imageId);
@@ -58,7 +60,7 @@ public class PostServiceImplementation implements PostService {
         post.setContent(oldPost.getContent() == null ? post.getContent() : oldPost.getSummary());
         post.setCategory(mergeNullableFields(oldPost.getCategory(), post.getCategory()));
         post.setTime_to_read(mergeNullableFields(oldPost.getTime_to_read(), post.getTime_to_read()));
-        post.setUpdated_at(new Date());
+        post.setUpdated_at(LocalDateTime.now());
 
         if (image != null && !image.isEmpty()) {
             String imageId = imageService.uploadImage(image);
