@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.blog.app.config.security.jwt.CommonJWTUtils.createClaims;
+
 @RestController
 @Slf4j
 public class AuthController {
@@ -58,16 +60,25 @@ public class AuthController {
         if (optionalUser.isEmpty()) {
             return ResponseEntity.badRequest().body("user not found");
         }
-        User user = optionalUser.get();
-        Cookie cookie = new Cookie("token", jwtService.createToken(user.getEmail()));
+        addTokenCookie(response, optionalUser.get());
+        return ResponseEntity.ok(
+                createResponseBody(optionalUser.get())
+        );
+    }
+
+    private void addTokenCookie(HttpServletResponse response, User user) {
+        String token = jwtService.createToken(user.getEmail(), createClaims(user));
+        Cookie cookie = new Cookie("token", token);
         cookie.setMaxAge(60 * 60 * 24 * 365);
         response.addCookie(cookie);
+    }
 
+    private Map<String, Object> createResponseBody(User user) {
         Map<String, Object> body = new HashMap<>();
         body.put("id", user.getId());
         body.put("username", user.getUsername());
         body.put("email", user.getEmail());
-        return ResponseEntity.ok(body);
+        return body;
     }
 
     /**

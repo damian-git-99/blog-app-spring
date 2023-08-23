@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.blog.app.config.security.jwt.CommonJWTUtils.createClaims;
+
 @Slf4j
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -105,12 +107,5 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
         log.error("unsuccessful Authentication request: {}", failed.getLocalizedMessage());
-    }
-
-    private Map<String, Object> createClaims(User user) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("username", user.getUsername());
-        claims.put("id", user.getId());
-        return claims;
     }
 }
