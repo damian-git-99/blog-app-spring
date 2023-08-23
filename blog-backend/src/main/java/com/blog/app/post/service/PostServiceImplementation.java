@@ -7,7 +7,6 @@ import com.blog.app.post.exceptions.PostNotFoundException;
 import com.blog.app.post.model.Post;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,6 +14,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import static com.blog.app.common.CommonUtils.mergeNullableFields;
+import static com.blog.app.config.security.CommonSecurityUtils.getAuthenticatedUser;
+import static com.blog.app.config.security.CommonSecurityUtils.isAuthenticatedUser;
 
 @Service
 @Slf4j
@@ -33,114 +36,68 @@ public class PostServiceImplementation implements PostService {
     public boolean createPost(Post post, MultipartFile image) {
         log.info("Creating post");
         JWTAuthentication authenticatedUser = getAuthenticatedUser();
-        post.setUserId(authenticatedUser.getUserId());
-        LocalDateTime now = LocalDateTime.now();
-        post.setCreated_at(now);
-        post.setUpdated_at(now);
-        if (isImageNotEmpty(image)) {
-            String imageId = imageService.uploadImage(image);
-            post.setImage(imageId);
-        }
+        setupPost(post, authenticatedUser);
+        uploadImageIfNotEmpty(post, image);
         return postDao.savePost(post);
     }
 
     @Override
     public boolean editPost(Post post, MultipartFile image) {
-        Optional<Post> optionalPost = postDao.getPostById(post.getId());
-        if (optionalPost.isEmpty()) {
-            throw new PostNotFoundException("Post not found");
-        }
-        Post oldPost = optionalPost.get();
-        if (!isPostOwnedByAuthenticatedUser(post)) {
-            throw new PostNotFoundException("Post not found");
-        }
-        post.setTitle(mergeNullableFields(oldPost.getTitle(), post.getTitle()));
-        post.setSummary(oldPost.getSummary() == null ? post.getSummary() : oldPost.getSummary());
-        post.setContent(oldPost.getContent() == null ? post.getContent() : oldPost.getSummary());
-        post.setCategory(mergeNullableFields(oldPost.getCategory(), post.getCategory()));
-        post.setTime_to_read(mergeNullableFields(oldPost.getTime_to_read(), post.getTime_to_read()));
-        post.setUpdated_at(LocalDateTime.now());
-
-        if (isImageNotEmpty(image)) {
-            String imageId = imageService.uploadImage(image);
-            if (oldPost.hasImage()) {
-                imageService.deleteImage(oldPost.getImage());
-            }
-            post.setImage(imageId);
-        }
-
+        log.info("Editing post: " + post.getId());
+        Post oldPost = getExistingPostById(post.getId());
+        verifyPostOwnership(oldPost);
+        updatePostFields(post, oldPost);
+        updatePostImage(post, oldPost, image);
         return postDao.editPost(post);
     }
 
+
     @Override
     public boolean deletePostById(Long id) {
-        Optional<Post> optionalPost = postDao.getPostById(id);
-        if (optionalPost.isEmpty()) {
-            throw new PostNotFoundException("Post not found");
-        }
-        if (!isPostOwnedByAuthenticatedUser(optionalPost.get())) {
-            throw new PostNotFoundException("Post not found");
-        }
-
-        Post post = optionalPost.get();
-
-        if (post.hasImage()) {
-            imageService.deleteImage(post.getImage());
-        }
-
+        log.info("Deleting post: " + id);
+        Post post = getExistingPostById(id);
+        verifyPostOwnership(post);
+        deleteImageIfPostHasImage(post);
         return postDao.deletePostById(id);
     }
 
     @Override
     public List<Post> getRecentlyPublishedPosts() {
+        log.info("Getting recently published posts");
         return updatePostImageUrls(postDao.getRecentlyPublishedPosts());
     }
 
     @Override
     public List<Post> getPostsOfAuthenticatedUser(Long userId) {
+        log.info("Getting posts of authenticated user");
         JWTAuthentication authenticatedUser = getAuthenticatedUser();
-        postDao.getPostsByUserId(authenticatedUser.getUserId());
         return updatePostImageUrls(postDao.getPostsByUserId(authenticatedUser.getUserId()));
     }
 
     @Override
     public List<Post> getPostsByUsername(String username) {
-        JWTAuthentication authenticatedUser = getAuthenticatedUser();
-
-        if (authenticatedUser.getUsername().equals(username)) {
-            return postDao.getAllPostsByUsername(username);
+        log.info("Getting posts by username: " + username);
+        if (isAuthenticatedUser(username)) {
+            return updatePostImageUrls(postDao.getAllPostsByUsername(username));
         }
-
         return updatePostImageUrls(postDao.getPublicPostsByUsername(username));
     }
 
     @Override
-    public Optional<Post> getPostById(Long postId) {
-        Optional<Post> optionalPost = postDao.getPostById(postId);
-        if (optionalPost.isEmpty()) {
-            throw new PostNotFoundException("Post not found");
-        }
-        Post post = optionalPost.get();
-
-        if (!post.isPublish() && !isPostOwnedByAuthenticatedUser(post)) {
-            throw new PostNotFoundException("Post not found");
-        }
-
-        return Optional.of(updatePostImageUrls(post));
+    public Post getPostById(Long postId) {
+        log.info("Getting post by id: " + postId);
+        Post post = getExistingPostById(postId);
+        validatePostAccess(post);
+        return updatePostImageUrls(post);
     }
 
     @Override
     public boolean togglePublicationStatus(Long postId) {
-        Optional<Post> optionalPost = this.postDao.getPostById(postId);
-
-        if (optionalPost.isEmpty()) {
-            throw new PostNotFoundException("Post not found");
+        log.info("Toggling publication status of post: " + postId);
+        Post post = getExistingPostById(postId);
+        if (!isPostOwnedByAuthenticatedUser(post)) {
+            throw new PostNotFoundException("Post not found: " + postId);
         }
-
-        if (!isPostOwnedByAuthenticatedUser(optionalPost.get())) {
-            throw new PostNotFoundException("Post not found");
-        }
-
         return false;
     }
 
@@ -162,47 +119,7 @@ public class PostServiceImplementation implements PostService {
     }
 
     /**
-     * Obtains the authenticated user from the security context.
-     *
-     * @return The authenticated user's JWTAuthentication object.
-     * @throws RuntimeException if the user is not authenticated.
-     */
-    private JWTAuthentication getAuthenticatedUser() {
-        log.info("Getting authenticated user");
-        JWTAuthentication principal = (JWTAuthentication) SecurityContextHolder
-                .getContext().getAuthentication();
-
-        if (principal == null) {
-            throw new RuntimeException("User not authenticated");
-        }
-
-        return principal;
-    }
-
-    /**
-     * Merges two values, prioritizing the new value if it's not null.
-     *
-     * @param oldValue The original value.
-     * @param newValue The new value.
-     * @return The merged value, preferring newValue if it's not null, otherwise oldValue.
-     */
-    private String mergeNullableFields(String oldValue, String newValue) {
-        return newValue == null ? oldValue : newValue;
-    }
-
-    /**
-     * Merges two values, prioritizing the new value if it's not null.
-     *
-     * @param oldValue The original value.
-     * @param newValue The new value.
-     * @return The merged value, preferring newValue if it's not null, otherwise oldValue.
-     */
-    private int mergeNullableFields(int oldValue, int newValue) {
-        return newValue == 0 ? oldValue : newValue;
-    }
-
-    /**
-     * Updates the image name to the full image URL in a Post object.
+     * Updates the image to the full image URL in a Post object.
      * This is necessary because the Post model stores only the image name, not the full URL.
      *
      * @param post The Post object to which the image URL will be updated.
@@ -215,10 +132,80 @@ public class PostServiceImplementation implements PostService {
         return post;
     }
 
+    /**
+     * Updates the image name to the full image URL in a Post object.
+     * This is necessary because the Post model stores only the image name, not the full URL.
+     *
+     * @param posts The Posts list to which the image URL will be updated.
+     * @return The updated Posts list with the full image URL.
+     */
     private List<Post> updatePostImageUrls(List<Post> posts) {
         return posts.stream()
                 .map(this::updatePostImageUrls)
                 .toList();
+    }
+
+    private Post getExistingPostById(Long postId) {
+        Optional<Post> optionalPost = postDao.getPostById(postId);
+        if (optionalPost.isEmpty()) {
+            throw new PostNotFoundException("Post not found: " + postId);
+        }
+        return optionalPost.get();
+    }
+
+    /**
+     * Sets up the initial properties for a newly created post.
+     *
+     * @param post              The post to be set up.
+     * @param authenticatedUser The authenticated user object.
+     */
+    private void setupPost(Post post, JWTAuthentication authenticatedUser) {
+        post.setUserId(authenticatedUser.getUserId());
+        LocalDateTime now = LocalDateTime.now();
+        post.setCreated_at(now);
+        post.setUpdated_at(now);
+    }
+
+    private void uploadImageIfNotEmpty(Post post, MultipartFile image) {
+        if (isImageNotEmpty(image)) {
+            String imageId = imageService.uploadImage(image);
+            post.setImage(imageId);
+        }
+    }
+
+    /**
+     * Verifies if the authenticated user owns the given post.
+     *
+     * @param post The post to be verified.
+     * @throws PostNotFoundException If the post doesn't belong to the authenticated user.
+     */
+    private void verifyPostOwnership(Post post) {
+        if (!isPostOwnedByAuthenticatedUser(post)) {
+            throw new PostNotFoundException("Post not found: " + post.getId());
+        }
+    }
+
+    private void updatePostFields(Post post, Post oldPost) {
+        post.setTitle(mergeNullableFields(oldPost.getTitle(), post.getTitle()));
+        post.setSummary(oldPost.getSummary() == null ? post.getSummary() : oldPost.getSummary());
+        post.setContent(oldPost.getContent() == null ? post.getContent() : oldPost.getSummary());
+        post.setCategory(mergeNullableFields(oldPost.getCategory(), post.getCategory()));
+        post.setTime_to_read(mergeNullableFields(oldPost.getTime_to_read(), post.getTime_to_read()));
+        post.setUpdated_at(LocalDateTime.now());
+    }
+
+    private void updatePostImage(Post post, Post oldPost, MultipartFile image) {
+        if (isImageNotEmpty(image)) {
+            String imageId = imageService.uploadImage(image);
+            deleteImageIfPostHasImage(oldPost);
+            post.setImage(imageId);
+        }
+    }
+
+    private void validatePostAccess(Post post) {
+        if (!post.isPublish() && !isPostOwnedByAuthenticatedUser(post)) {
+            throw new PostNotFoundException("Post not found: " + post.getId());
+        }
     }
 
     private boolean isImageEmpty(MultipartFile image) {
@@ -227,5 +214,16 @@ public class PostServiceImplementation implements PostService {
 
     private boolean isImageNotEmpty(MultipartFile image) {
         return !isImageEmpty(image);
+    }
+
+    /**
+     * Deletes the associated image of a post if it exists.
+     *
+     * @param post The post for which the associated image will be deleted.
+     */
+    private void deleteImageIfPostHasImage(Post post) {
+        if (post.hasImage()) {
+            imageService.deleteImage(post.getImage());
+        }
     }
 }

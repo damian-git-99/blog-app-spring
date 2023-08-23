@@ -20,7 +20,7 @@ public interface PostService {
 
     List<Post> getPostsByUsername(String username);
 
-    Optional<Post> getPostById(Long postId);
+    Post getPostById(Long postId);
 
     boolean togglePublicationStatus(Long postId);
 
