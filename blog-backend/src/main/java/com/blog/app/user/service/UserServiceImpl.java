@@ -39,29 +39,29 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Transactional
     public void registerUser(User user) {
         log.info("Registering user: {}", user.getEmail());
-        validateUserDoesNotExist(user);
-        hashUserPassword(user);
+        Optional<User> optionalUser = findUserByEmail(user.getEmail());
+        if (optionalUser.isPresent()) {
+            throw new UserAlreadyExistsException("Email already exists");
+        }
+        String hashedPassword = this.passwordEncoder.encode(user.getPassword());
+        user.setPassword(hashedPassword);
         userDao.saveUser(user);
         log.info("User registered successfully: {}", user.getEmail());
     }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = findAndValidateUserByEmail(email);
-        return createUserDetails(
-                user.getEmail(),
-                user.getPassword(),
-                createEmptyAuthorities()
-        );
-    }
-
-    private User findAndValidateUserByEmail(String email) throws UsernameNotFoundException {
         Optional<User> optionalUser = findUserByEmail(email);
         if (optionalUser.isEmpty()) {
             log.warn("User not found: {}", email);
             throw new UsernameNotFoundException("User not found");
         }
-        return optionalUser.get();
+        User user = optionalUser.get();
+        return createUserDetails(
+                user.getEmail(),
+                user.getPassword(),
+                createEmptyAuthorities()
+        );
     }
 
     private Collection<? extends GrantedAuthority> createEmptyAuthorities() {
@@ -72,17 +72,4 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                                           Collection<? extends GrantedAuthority> authorities) {
         return new org.springframework.security.core.userdetails.User(email, password, authorities);
     }
-
-    private void validateUserDoesNotExist(User user) {
-        Optional<User> optionalUser = findUserByEmail(user.getEmail());
-        if (optionalUser.isPresent()) {
-            throw new UserAlreadyExistsException("Email already exists");
-        }
-    }
-
-    private void hashUserPassword(User user) {
-        String hashedPassword = this.passwordEncoder.encode(user.getPassword());
-        user.setPassword(hashedPassword);
-    }
-
 }

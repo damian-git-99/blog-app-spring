@@ -60,17 +60,14 @@ public class AuthController {
         if (optionalUser.isEmpty()) {
             return ResponseEntity.badRequest().body("user not found");
         }
-        addTokenCookie(response, optionalUser.get());
-        return ResponseEntity.ok(
-                createResponseBody(optionalUser.get())
-        );
-    }
-
-    private void addTokenCookie(HttpServletResponse response, User user) {
+        User user = optionalUser.get();
         String token = jwtService.createToken(user.getEmail(), createClaims(user));
         Cookie cookie = new Cookie("token", token);
         cookie.setMaxAge(60 * 60 * 24 * 365);
         response.addCookie(cookie);
+        return ResponseEntity.ok(
+                createResponseBody(optionalUser.get())
+        );
     }
 
     private Map<String, Object> createResponseBody(User user) {
