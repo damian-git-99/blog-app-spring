@@ -1,5 +1,6 @@
 package com.blog.app.config.security.jwt;
 
+import java.util.Date;
 import java.util.Map;
 
 public interface JWTService {
@@ -11,6 +12,7 @@ public interface JWTService {
      * @return The JWT as a string.
      */
     String createToken(String subject, Map<String, Object> payload);
+
     /**
      * Creates a JSON Web Token (JWT) with the provided subject
      *
@@ -20,9 +22,18 @@ public interface JWTService {
     String createToken(String subject);
 
     /**
+     * Creates a JSON Web Token (JWT) with the provided payload and expiration date.
+     *
+     * @param payload    The payload to be included in the token.
+     * @param expiration The expiration date of the token.
+     * @return The JWT as a string.
+     */
+    String createToken(Map<String, Object> payload, Date expiration);
+
+    /**
      * Validates a JSON Web Token (JWT) extracted from the authorization header.
      *
-     * @param authorizationHeader The Authorization header containing the JWT.
+     * @param header The Authorization header containing the JWT.
      * @return True if the token is valid; otherwise, it throws a RuntimeException.
      * @throws RuntimeException If the token validation fails (expired or invalid token).
      */

@@ -43,6 +43,20 @@ public class JWTServiceImplementation implements JWTService {
     }
 
     @Override
+    public String createToken(Map<String, Object> payload, Date expiration) {
+        Claims claims = Jwts.claims();
+        claims.putAll(payload);
+
+        String token = Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(new Date())
+                .setExpiration(expiration)
+                .signWith(SECRET_KEY)
+                .compact();
+        return token;
+    }
+
+    @Override
     public boolean validateToken(String authorizationHeader) {
         try {
             getClaims(authorizationHeader);
