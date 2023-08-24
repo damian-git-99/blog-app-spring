@@ -36,8 +36,14 @@ public class PostServiceImplementation implements PostService {
     public boolean createPost(Post post, MultipartFile image) {
         log.info("Creating post");
         JWTAuthentication authenticatedUser = getAuthenticatedUser();
-        setupPost(post, authenticatedUser);
-        uploadImageIfNotEmpty(post, image);
+        post.setUserId(authenticatedUser.getUserId());
+        LocalDateTime now = LocalDateTime.now();
+        post.setCreated_at(now);
+        post.setUpdated_at(now);
+        if (isImageNotEmpty(image)) {
+            String imageId = imageService.uploadImage(image);
+            post.setImage(imageId);
+        }
         return postDao.savePost(post);
     }
 
@@ -46,8 +52,17 @@ public class PostServiceImplementation implements PostService {
         log.info("Editing post: " + post.getId());
         Post oldPost = getExistingPostById(post.getId());
         verifyPostOwnership(oldPost);
-        updatePostFields(post, oldPost);
-        updatePostImage(post, oldPost, image);
+        post.setTitle(mergeNullableFields(oldPost.getTitle(), post.getTitle()));
+        post.setSummary(oldPost.getSummary() == null ? post.getSummary() : oldPost.getSummary());
+        post.setContent(oldPost.getContent() == null ? post.getContent() : oldPost.getSummary());
+        post.setCategory(mergeNullableFields(oldPost.getCategory(), post.getCategory()));
+        post.setTime_to_read(mergeNullableFields(oldPost.getTime_to_read(), post.getTime_to_read()));
+        post.setUpdated_at(LocalDateTime.now());
+        if (isImageNotEmpty(image)) {
+            String imageId = imageService.uploadImage(image);
+            deleteImageIfPostHasImage(oldPost);
+            post.setImage(imageId);
+        }
         return postDao.editPost(post);
     }
 
@@ -92,31 +107,12 @@ public class PostServiceImplementation implements PostService {
     }
 
     @Override
-    public boolean togglePublicationStatus(Long postId) {
+    public void togglePublicationStatus(Long postId) {
         log.info("Toggling publication status of post: " + postId);
         Post post = getExistingPostById(postId);
-        if (!isPostOwnedByAuthenticatedUser(post)) {
-            throw new PostNotFoundException("Post not found: " + postId);
-        }
-        return false;
+        verifyPostOwnership(post);
     }
 
-    /**
-     * Checks if a post belongs to the authenticated user.
-     *
-     * @param post The post to be checked.
-     * @return true if the post belongs to the authenticated user, false otherwise.
-     */
-    private boolean isPostOwnedByAuthenticatedUser(Post post) {
-        try {
-            log.info("Checking if post belongs to authenticated user");
-            JWTAuthentication auth = getAuthenticatedUser();
-            return Objects.equals(auth.getUserId(), post.getUserId());
-        } catch (Exception e) {
-            log.error("Error checking if post belongs to authenticated user");
-            return false;
-        }
-    }
 
     /**
      * Updates the image to the full image URL in a Post object.
@@ -154,26 +150,6 @@ public class PostServiceImplementation implements PostService {
     }
 
     /**
-     * Sets up the initial properties for a newly created post.
-     *
-     * @param post              The post to be set up.
-     * @param authenticatedUser The authenticated user object.
-     */
-    private void setupPost(Post post, JWTAuthentication authenticatedUser) {
-        post.setUserId(authenticatedUser.getUserId());
-        LocalDateTime now = LocalDateTime.now();
-        post.setCreated_at(now);
-        post.setUpdated_at(now);
-    }
-
-    private void uploadImageIfNotEmpty(Post post, MultipartFile image) {
-        if (isImageNotEmpty(image)) {
-            String imageId = imageService.uploadImage(image);
-            post.setImage(imageId);
-        }
-    }
-
-    /**
      * Verifies if the authenticated user owns the given post.
      *
      * @param post The post to be verified.
@@ -185,26 +161,27 @@ public class PostServiceImplementation implements PostService {
         }
     }
 
-    private void updatePostFields(Post post, Post oldPost) {
-        post.setTitle(mergeNullableFields(oldPost.getTitle(), post.getTitle()));
-        post.setSummary(oldPost.getSummary() == null ? post.getSummary() : oldPost.getSummary());
-        post.setContent(oldPost.getContent() == null ? post.getContent() : oldPost.getSummary());
-        post.setCategory(mergeNullableFields(oldPost.getCategory(), post.getCategory()));
-        post.setTime_to_read(mergeNullableFields(oldPost.getTime_to_read(), post.getTime_to_read()));
-        post.setUpdated_at(LocalDateTime.now());
-    }
-
-    private void updatePostImage(Post post, Post oldPost, MultipartFile image) {
-        if (isImageNotEmpty(image)) {
-            String imageId = imageService.uploadImage(image);
-            deleteImageIfPostHasImage(oldPost);
-            post.setImage(imageId);
-        }
-    }
 
     private void validatePostAccess(Post post) {
         if (!post.isPublish() && !isPostOwnedByAuthenticatedUser(post)) {
             throw new PostNotFoundException("Post not found: " + post.getId());
+        }
+    }
+
+    /**
+     * Checks if a post belongs to the authenticated user.
+     *
+     * @param post The post to be checked.
+     * @return true if the post belongs to the authenticated user, false otherwise.
+     */
+    private boolean isPostOwnedByAuthenticatedUser(Post post) {
+        try {
+            log.info("Checking if post belongs to authenticated user");
+            JWTAuthentication auth = getAuthenticatedUser();
+            return Objects.equals(auth.getUserId(), post.getUserId());
+        } catch (Exception e) {
+            log.error("Error checking if post belongs to authenticated user");
+            return false;
         }
     }
 

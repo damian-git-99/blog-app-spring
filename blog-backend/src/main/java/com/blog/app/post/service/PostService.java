@@ -22,6 +22,6 @@ public interface PostService {
 
     Post getPostById(Long postId);
 
-    boolean togglePublicationStatus(Long postId);
+    void togglePublicationStatus(Long postId);
 
 }
