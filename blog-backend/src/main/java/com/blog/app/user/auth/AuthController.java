@@ -1,6 +1,7 @@
 package com.blog.app.user.auth;
 
 import com.blog.app.config.security.jwt.JWTService;
+import com.blog.app.user.auth.service.AuthService;
 import com.blog.app.user.model.User;
 import com.blog.app.user.service.UserService;
 import jakarta.servlet.http.Cookie;
@@ -26,11 +27,13 @@ import static com.blog.app.config.security.jwt.CommonJWTUtils.createClaims;
 @Slf4j
 public class AuthController {
 
+    private final AuthService authService;
     private final UserService userService;
     private final JWTService jwtService;
 
     @Autowired
-    public AuthController(UserService userService, JWTService jwtService) {
+    public AuthController(AuthService authService, UserService userService, JWTService jwtService) {
+        this.authService = authService;
         this.userService = userService;
         this.jwtService = jwtService;
     }
@@ -40,7 +43,7 @@ public class AuthController {
         if (br.hasErrors()) {
             return handleValidationExceptions(br);
         }
-        userService.registerUser(user);
+        authService.registerUser(user);
         return ResponseEntity.ok("register Successfully");
     }
 

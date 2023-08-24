@@ -21,32 +21,16 @@ import java.util.Optional;
 @Slf4j
 public class UserServiceImpl implements UserService, UserDetailsService {
 
-    private final PasswordEncoder passwordEncoder;
     private final UserDao userDao;
 
     @Autowired
-    public UserServiceImpl(PasswordEncoder passwordEncoder, UserDao userDao) {
-        this.passwordEncoder = passwordEncoder;
+    public UserServiceImpl(UserDao userDao) {
         this.userDao = userDao;
     }
 
     @Override
     public Optional<User> findUserByEmail(String email) {
         return userDao.findUserByEmail(email);
-    }
-
-    @Override
-    @Transactional
-    public void registerUser(User user) {
-        log.info("Registering user: {}", user.getEmail());
-        Optional<User> optionalUser = findUserByEmail(user.getEmail());
-        if (optionalUser.isPresent()) {
-            throw new UserAlreadyExistsException("Email already exists");
-        }
-        String hashedPassword = this.passwordEncoder.encode(user.getPassword());
-        user.setPassword(hashedPassword);
-        userDao.saveUser(user);
-        log.info("User registered successfully: {}", user.getEmail());
     }
 
     @Override
