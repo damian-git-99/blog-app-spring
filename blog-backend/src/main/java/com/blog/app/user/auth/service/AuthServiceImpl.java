@@ -2,8 +2,10 @@ package com.blog.app.user.auth.service;
 
 import com.blog.app.common.email.EmailService;
 import com.blog.app.config.security.jwt.JWTService;
+import com.blog.app.config.security.jwt.exceptions.InvalidTokenException;
 import com.blog.app.user.dao.UserDao;
 import com.blog.app.user.exceptions.UserAlreadyExistsException;
+import com.blog.app.user.exceptions.UserNotFoundException;
 import com.blog.app.user.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,13 +62,11 @@ public class AuthServiceImpl implements AuthService {
     public void recoverPassword(String email) {
         Optional<User> optionalUser = userDao.findUserByEmail(email);
         if (optionalUser.isEmpty()) {
-            // todo: add custom exception
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException("User not found: " + email);
         }
         User user = optionalUser.get();
         String token = createToken(user);
         String body = emailBody(token);
-        System.out.println(token);
         emailService.sendEmail(email, "Reset Password", body);
         log.info("Email sent to: {}", email);
     }
@@ -74,24 +74,21 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void resetPasswordCheck(String token) {
         if (!jwtService.validateToken(token)) {
-            // todo: add custom exception
-            throw new RuntimeException("Invalid token");
+            throw new InvalidTokenException("Invalid token");
         }
     }
 
     @Override
     public void resetPassword(String token, String newPassword) {
         if (!jwtService.validateToken(token)) {
-            // todo: add custom exception
-            throw new RuntimeException("Invalid token");
+            throw new InvalidTokenException("Invalid token");
         }
 
         Map<String, Object> claims = jwtService.getClaims(token);
         String email = (String) claims.get("email");
         Optional<User> optionalUser = userDao.findUserByEmail(email);
         if (optionalUser.isEmpty()) {
-            // todo: add custom exception
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException("User not found: " + email);
         }
         User user = optionalUser.get();
         String hashedPassword = this.passwordEncoder.encode(newPassword);
