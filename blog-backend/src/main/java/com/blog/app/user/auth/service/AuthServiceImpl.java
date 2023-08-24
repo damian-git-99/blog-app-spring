@@ -3,7 +3,6 @@ package com.blog.app.user.auth.service;
 import com.blog.app.user.dao.UserDao;
 import com.blog.app.user.exceptions.UserAlreadyExistsException;
 import com.blog.app.user.model.User;
-import com.blog.app.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -53,4 +52,5 @@ public class AuthServiceImpl implements AuthService {
     public void resetPassword(String token, String newPassword) {
 
     }
+
 }
