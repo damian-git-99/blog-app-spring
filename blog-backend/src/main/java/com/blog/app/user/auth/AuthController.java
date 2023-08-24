@@ -1,4 +1,4 @@
-package com.blog.app.auth;
+package com.blog.app.user.auth;
 
 import com.blog.app.config.security.jwt.JWTService;
 import com.blog.app.user.model.User;
@@ -25,8 +25,6 @@ import static com.blog.app.config.security.jwt.CommonJWTUtils.createClaims;
 @RestController
 @Slf4j
 public class AuthController {
-
-    // todo: mover todo esto al package de user
 
     private final UserService userService;
     private final JWTService jwtService;
