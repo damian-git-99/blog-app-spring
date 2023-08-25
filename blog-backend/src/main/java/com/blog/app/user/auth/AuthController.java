@@ -7,14 +7,13 @@ import com.blog.app.user.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.HashMap;
@@ -49,6 +48,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     String logout(HttpServletResponse response) {
+        System.out.println("entro");
         Cookie cookie = new Cookie("token", "");
         cookie.setMaxAge(0);
         response.addCookie(cookie);
@@ -71,6 +71,27 @@ public class AuthController {
         );
     }
 
+    @PostMapping("/recover-password")
+    @ResponseStatus(HttpStatus.OK)
+    void recoverPassword(@RequestBody UserDTO userDTO) {
+        String email = userDTO.getEmail();
+        authService.recoverPassword(email);
+    }
+
+
+    @GetMapping("/reset-password/{token}")
+    @ResponseStatus(HttpStatus.OK)
+    void resetPasswordCheck(@PathVariable String token) {
+        authService.resetPasswordCheck(token);
+    }
+
+    @PostMapping("/reset-password/{token}")
+    @ResponseStatus(HttpStatus.OK)
+    void resetPassword(@PathVariable String token, @RequestBody UserDTO userDTO) {
+        String password = userDTO.getPassword();
+        authService.resetPassword(token, password);
+    }
+
     private Map<String, Object> createResponseBody(User user) {
         Map<String, Object> body = new HashMap<>();
         body.put("id", user.getId());
@@ -91,6 +112,12 @@ public class AuthController {
         br.getFieldErrors()
                 .forEach(objectError -> errorsMap.put(objectError.getField(), objectError.getDefaultMessage()));
         return ResponseEntity.badRequest().body(errorsMap);
+    }
+
+    @Data
+    static class UserDTO {
+        private String email;
+        private String password;
     }
 
 }
