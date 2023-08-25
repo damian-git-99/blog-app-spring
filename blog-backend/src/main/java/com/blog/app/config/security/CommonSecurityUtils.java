@@ -8,7 +8,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class CommonSecurityUtils {
 
 
-    private CommonSecurityUtils() {}
+    private CommonSecurityUtils() {
+    }
 
     /**
      * Obtains the authenticated user from the security context.
@@ -17,11 +18,12 @@ public class CommonSecurityUtils {
      * @throws RuntimeException if the user is not authenticated.
      */
     static public JWTAuthentication getAuthenticatedUser() {
-        log.info("Getting authenticated user");
+        log.debug("Getting authenticated user from security context");
         JWTAuthentication principal = (JWTAuthentication) SecurityContextHolder
                 .getContext().getAuthentication();
 
         if (principal == null) {
+            log.debug("Error getting authenticated user from security context");
             throw new RuntimeException("User not authenticated");
         }
 

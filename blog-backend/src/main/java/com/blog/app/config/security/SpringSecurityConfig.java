@@ -57,8 +57,11 @@ public class SpringSecurityConfig {
     ) throws Exception {
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.logout().disable();
         http.authorizeHttpRequests()
-                .requestMatchers(HttpMethod.POST, "/api/1.0/auth").permitAll()
+                .requestMatchers(HttpMethod.POST, "/register").permitAll()
+                .requestMatchers(HttpMethod.POST, "/logout").permitAll()
+                .requestMatchers(HttpMethod.POST, "/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/verify-token").authenticated()
                 .requestMatchers("/api/**").authenticated()
                 //.requestMatchers("/secure/info").authenticated()

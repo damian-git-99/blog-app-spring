@@ -35,14 +35,14 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
         if (optionalToken.isPresent()) {
             String token = optionalToken.get();
-            log.info("token found: {}", token);
+            log.debug("token found: {}", token);
             JWTAuthentication jwtAuthentication = new JWTAuthentication(token);
             Authentication auth = authenticationManager.authenticate(jwtAuthentication);
             if (auth.isAuthenticated()) {
                 log.info("Authentication successful by token");
                 SecurityContextHolder.getContext().setAuthentication(auth);
             } else {
-                log.info("Clearing Spring Security Context");
+                log.debug("Bad Token: Clearing Spring Security Context");
                 SecurityContextHolder.clearContext();
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
@@ -55,7 +55,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     private Optional<String> extractTokenFromRequest(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-        log.info("Checking token in cookies");
+        log.debug("Checking token in cookies");
         if (cookies == null) return Optional.empty();
         var optionalCookie = Arrays.stream(cookies)
                 .filter(cookie -> cookie.getName().equals("token"))

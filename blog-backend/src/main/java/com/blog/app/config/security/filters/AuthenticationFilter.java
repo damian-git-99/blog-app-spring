@@ -60,10 +60,9 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             Map body = new ObjectMapper().readValue(request.getInputStream(), Map.class);
             email = body.get("email").toString();
             password = body.get("password").toString();
-            log.info("email: {}, password: {}", email, password);
+            log.debug("email attempting authentication: {}", email);
         } catch (Exception e) {
             log.error("Error reading request body: {}", e.getMessage());
-            e.printStackTrace();
         }
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
@@ -106,6 +105,6 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         response.getWriter().write(new ObjectMapper().writeValueAsString(body));
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
-        log.error("unsuccessful Authentication request: {}", failed.getLocalizedMessage());
+        log.warn("unsuccessful Authentication request: {}", failed.getLocalizedMessage());
     }
 }

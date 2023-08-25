@@ -25,10 +25,11 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        log.info("Attempting to authenticate by JWT token");
+        log.debug("JWTAuthentication: {}", authentication);
         JWTAuthentication jwtAuthentication = (JWTAuthentication) authentication;
         String token = jwtAuthentication.getToken();
         if (!jwtService.validateToken(token)) {
-            log.error("Invalid token");
             return jwtAuthentication;
         }
         jwtAuthentication.setAuthenticated(true);
@@ -37,8 +38,9 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
         jwtAuthentication.setName(subject);
         jwtAuthentication.setEmail((String) claims.get("sub"));
         jwtAuthentication.setUsername((String) claims.get("username"));
-        Long userId = Long.valueOf((Integer)claims.get("id"));
+        Long userId = Long.valueOf((Integer) claims.get("id"));
         jwtAuthentication.setUserId(userId);
+        log.debug("token data was put in the JWTAuthentication");
         return jwtAuthentication;
 
     }

@@ -23,6 +23,8 @@ public class JWTServiceImplementation implements JWTService {
 
     @Override
     public String createToken(String subject, Map<String, Object> payload) {
+        log.info("Creating JWT token");
+        log.debug("JWT payload: {}", payload);
         Claims claims = Jwts.claims();
         claims.putAll(payload);
 
@@ -44,6 +46,8 @@ public class JWTServiceImplementation implements JWTService {
 
     @Override
     public String createToken(Map<String, Object> payload, Date expiration) {
+        log.info("Creating JWT token");
+        log.debug("JWT payload: {} expiration: {}", payload, expiration);
         Claims claims = Jwts.claims();
         claims.putAll(payload);
 
@@ -53,6 +57,7 @@ public class JWTServiceImplementation implements JWTService {
                 .setExpiration(expiration)
                 .signWith(SECRET_KEY)
                 .compact();
+        log.info("JWT token created for subject: {}", payload);
         return token;
     }
 
@@ -69,6 +74,7 @@ public class JWTServiceImplementation implements JWTService {
 
     @Override
     public Claims getClaims(String authorizationHeader) {
+        log.debug("Getting claims from JWT token: {}", authorizationHeader);
         return Jwts.parserBuilder()
                 .setSigningKey(SECRET_KEY)
                 .build()
@@ -83,6 +89,7 @@ public class JWTServiceImplementation implements JWTService {
      * @return The extracted authorization token, or the original header string if it cannot be resolved.
      */
     private String resolveToken(String header) {
+        log.debug("Resolving token from header: {}", header);
         // Check if the header is null
         if (header == null) return "";
         // Check if the header starts with the "Bearer " prefix.
