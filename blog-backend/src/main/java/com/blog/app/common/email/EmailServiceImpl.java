@@ -1,9 +1,12 @@
 package com.blog.app.common.email;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,12 +22,32 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendEmail(String to, String subject, String body) {
-        log.info("Sending email to: " + to + " with subject: " + subject + " and body: " + body);
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(to);
-        mailMessage.setSubject(subject);
-        mailMessage.setText(body);
-        mailSender.send(mailMessage);
+        log.debug("Sending email to: {} with subject: {} and body: {}", to, subject, body);
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+            helper.setText(body);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            mailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            log.error("Error while sending email", e);
+        }
+    }
+
+    @Override
+    public void sendEmailWithHtml(String to, String subject, String html) {
+        log.debug("Sending email to: {} with subject: {} and html: {}", to, subject, html);
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+            helper.setText(html, true);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            mailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            log.error("Error while sending email", e);
+        }
     }
 
 }
