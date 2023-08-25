@@ -1,4 +1,4 @@
-package com.blog.app.config.security.image;
+package com.blog.app.common.image;
 
 import org.springframework.web.multipart.MultipartFile;
 

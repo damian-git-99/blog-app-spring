@@ -1,7 +1,7 @@
 package com.blog.app.post.service;
 
 import com.blog.app.config.security.authentication.JWTAuthentication;
-import com.blog.app.config.security.image.ImageService;
+import com.blog.app.common.image.ImageService;
 import com.blog.app.post.dao.PostDao;
 import com.blog.app.post.exceptions.PostNotFoundException;
 import com.blog.app.post.model.Post;

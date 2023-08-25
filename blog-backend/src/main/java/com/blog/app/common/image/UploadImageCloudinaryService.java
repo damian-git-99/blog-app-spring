@@ -1,4 +1,4 @@
-package com.blog.app.config.security.image;
+package com.blog.app.common.image;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
