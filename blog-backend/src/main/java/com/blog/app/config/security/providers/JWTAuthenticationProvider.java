@@ -31,13 +31,14 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
             log.error("Invalid token");
             return jwtAuthentication;
         }
-
         jwtAuthentication.setAuthenticated(true);
-        Map<String, Object> claims = jwtService.getClaims(jwtAuthentication.getToken());
+        Map<String, Object> claims = jwtService.getClaims(token);
         String subject = (String) claims.get("sub");
         jwtAuthentication.setName(subject);
-        jwtAuthentication.setEmail((String) claims.get("email"));
-        jwtAuthentication.setUserId((Long) claims.get("id"));
+        jwtAuthentication.setEmail((String) claims.get("sub"));
+        jwtAuthentication.setUsername((String) claims.get("username"));
+        Long userId = Long.valueOf((Integer)claims.get("id"));
+        jwtAuthentication.setUserId(userId);
         return jwtAuthentication;
 
     }
