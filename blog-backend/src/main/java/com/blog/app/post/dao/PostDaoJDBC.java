@@ -33,6 +33,18 @@ public class PostDaoJDBC implements PostDao {
                 "updated_at, " +
                 "user_id ) VALUES (?, ?, ?, ?, ? ,? ,?,?,?,?)";
         log.info("Executing SQL query: {}", query);
+        log.debug("Params: {}, {}, {}, {}, {}, {}, {}, {}, {}, {}",
+                post.getTitle(),
+                post.getContent(),
+                post.getSummary(),
+                post.getImage(),
+                post.getCategory(),
+                post.getTime_to_read(),
+                post.isPublish(),
+                post.getCreated_at(),
+                post.getUpdated_at(),
+                post.getUserId()
+        );
         int res = jdbc.update(
                 query, post.getTitle(),
                 post.getContent(),
@@ -63,6 +75,17 @@ public class PostDaoJDBC implements PostDao {
                 "updated_at = ?, " +
                 "WHERE id = ?";
         log.info("Executing SQL query: {}", query);
+        log.debug("Params: {}, {}, {}, {}, {}, {}, {}, {}, {}",
+                post.getTitle(),
+                post.getContent(),
+                post.getSummary(),
+                post.getImage(),
+                post.getCategory(),
+                post.getTime_to_read(),
+                post.isPublish(),
+                post.getUpdated_at(),
+                post.getId()
+        );
         int res = jdbc.update(
                 query,
                 post.getTitle(),
@@ -82,6 +105,7 @@ public class PostDaoJDBC implements PostDao {
     public boolean deletePostById(Long id) {
         String query = "DELETE FROM posts WHERE id = ?";
         log.info("Executing SQL query: {}", query);
+        log.debug("Params: {}", id);
         int res = jdbc.update(query, id);
         if (res == 1) log.info("Post deleted successfully");
         else log.error("Error deleting post");
@@ -92,6 +116,7 @@ public class PostDaoJDBC implements PostDao {
     public List<Post> getRecentlyPublishedPosts() {
         String query = "SELECT * FROM posts WHERE isPublish = 1 ORDER BY id DESC LIMIT 50";
         log.info("Executing SQL query: {}", query);
+        log.debug("Params: {}", query);
         List<Post> posts = jdbc.query(query, BeanPropertyRowMapper.newInstance(Post.class));
         return posts;
     }
@@ -100,6 +125,7 @@ public class PostDaoJDBC implements PostDao {
     public List<Post> getPostsByUserId(Long userId) {
         String query = "SELECT * FROM posts WHERE user_id = ?";
         log.info("Executing SQL query: {}", query);
+        log.debug("Params: {}", query);
         List<Post> posts = jdbc.query(
                 query,
                 BeanPropertyRowMapper.newInstance(Post.class),
@@ -112,6 +138,7 @@ public class PostDaoJDBC implements PostDao {
     public List<Post> getPublicPostsByUsername(String username) {
         String query = "SELECT * FROM posts WHERE user_id = (SELECT id FROM users WHERE username = ?) AND posts.isPublish = 1";
         log.info("Executing SQL query: {}", query);
+        log.debug("Params: {}", query);
         List<Post> posts = jdbc.query(
                 query,
                 BeanPropertyRowMapper.newInstance(Post.class),
@@ -124,6 +151,7 @@ public class PostDaoJDBC implements PostDao {
     public List<Post> getAllPostsByUsername(String username) {
         String query = "SELECT * FROM posts WHERE user_id = (SELECT id FROM users WHERE username = ?)";
         log.info("Executing SQL query: {}", query);
+        log.debug("Params: {}", query);
         List<Post> posts = jdbc.query(
                 query,
                 BeanPropertyRowMapper.newInstance(Post.class),
@@ -136,6 +164,7 @@ public class PostDaoJDBC implements PostDao {
     public Optional<Post> getPostById(Long postId) {
         String query = "SELECT * FROM posts WHERE id = ?";
         log.info("Executing SQL query: {}", query);
+        log.debug("Params: {}", query);
         try {
             Post post = jdbc.queryForObject(
                     query,
@@ -152,6 +181,7 @@ public class PostDaoJDBC implements PostDao {
     public boolean togglePublicationStatus(Long postId) {
         String query = "UPDATE posts SET isPublish = NOT isPublish WHERE id = ?";
         log.info("Executing SQL query: {}", query);
+        log.debug("Params: {}", query);
         int res = jdbc.update(query);
         if (res == 1) log.info("Posts publication status toggled successfully");
         else log.error("Error toggling posts publication status");

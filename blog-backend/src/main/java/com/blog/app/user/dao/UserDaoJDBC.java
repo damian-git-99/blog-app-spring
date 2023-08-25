@@ -23,6 +23,7 @@ public class UserDaoJDBC implements UserDao {
         try {
             String query = "SELECT * FROM users WHERE email = ?";
             log.info("Executing SQL query: {}", query);
+            log.debug("Param email: {}", email);
             User user = jdbc.queryForObject(
                     query,
                     BeanPropertyRowMapper.newInstance(User.class),
@@ -38,6 +39,7 @@ public class UserDaoJDBC implements UserDao {
     public boolean saveUser(User user) {
         String query = "INSERT INTO users (email, password, username) VALUES (?, ?, ?)";
         log.info("Executing SQL query: {}", query);
+        log.debug("Param: {}", user);
         int result = jdbc.update(
                 query,
                 user.getEmail(),
@@ -51,6 +53,7 @@ public class UserDaoJDBC implements UserDao {
     public Optional<User> findUserById(Long id) {
         String query = "SELECT * FROM users WHERE id = ?";
         log.info("Executing SQL query: {}", query);
+        log.debug("Param id: {}", id);
         try {
             User user = jdbc.queryForObject(
                     query,
@@ -67,6 +70,7 @@ public class UserDaoJDBC implements UserDao {
     public boolean editUser(User user) {
         String query = "UPDATE users SET email = ?, password = ?, username = ? WHERE id = ?";
         log.info("Executing SQL query: {}", query);
+        log.debug("Params: {} {} {} {}", user.getEmail(), user.getPassword(), user.getUsername(), user.getId());
         int res = jdbc.update(
                 query,
                 user.getEmail(),
@@ -81,6 +85,7 @@ public class UserDaoJDBC implements UserDao {
     public Optional<User> findUserByUsername(String username) {
         String query = "SELECT * FROM users WHERE username = ?";
         log.info("Executing SQL query: {}", query);
+        log.debug("Param username: {}", username);
         try {
             User user = jdbc.queryForObject(
                     query,
