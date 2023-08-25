@@ -67,7 +67,7 @@ public class AuthServiceImpl implements AuthService {
         User user = optionalUser.get();
         String token = createToken(user);
         String body = emailBody(token);
-        emailService.sendEmail(email, "Reset Password", body);
+        emailService.sendEmailWithHtml(email, "Reset Password", body);
         log.info("Email sent to: {}", email);
     }
 
