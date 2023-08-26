@@ -10,15 +10,13 @@ public class UploadImageCloudinaryService implements ImageService {
 
     @Override
     public String uploadImage(MultipartFile file) {
-        log.info("Uploading image to cloudinary");
-        log.debug("File name: " + file.getOriginalFilename());
+        log.debug("Uploading image to cloudinary image name is {} ", file.getOriginalFilename());
         return "image.png";
     }
 
     @Override
     public void deleteImage(String imageId) {
-        log.info("Deleting image from cloudinary");
-        log.debug("Image id: " + imageId);
+        log.debug("Deleting image from cloudinary {} ", imageId);
     }
 
     @Override

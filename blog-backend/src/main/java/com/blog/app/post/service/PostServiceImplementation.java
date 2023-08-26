@@ -44,6 +44,7 @@ public class PostServiceImplementation implements PostService {
             String imageId = imageService.uploadImage(image);
             post.setImage(imageId);
         }
+        log.info("Post was created successfully");
         return postDao.savePost(post);
     }
 
@@ -63,6 +64,7 @@ public class PostServiceImplementation implements PostService {
             deleteImageIfPostHasImage(oldPost);
             post.setImage(imageId);
         }
+        log.info("Post was edited successfully");
         return postDao.editPost(post);
     }
 
@@ -200,6 +202,7 @@ public class PostServiceImplementation implements PostService {
      */
     private void deleteImageIfPostHasImage(Post post) {
         if (post.hasImage()) {
+            log.info("Deleting image of post: " + post.getId());
             imageService.deleteImage(post.getImage());
         }
     }
