@@ -48,9 +48,9 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public void registerUser(User user) {
         log.info("Registering user: {}", user.getEmail());
-        Optional<User> optionalUser = userDao.findUserByEmail(user.getEmail());
+        Optional<User> optionalUser = userDao.findUserByEmailOrUsername(user.getEmail(), user.getUsername());
         if (optionalUser.isPresent()) {
-            throw new UserAlreadyExistsException("Email already exists");
+            throw new UserAlreadyExistsException("Email or username already exists");
         }
         String hashedPassword = this.passwordEncoder.encode(user.getPassword());
         user.setPassword(hashedPassword);

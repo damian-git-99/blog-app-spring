@@ -7,6 +7,7 @@ import java.util.Optional;
 
 public interface UserDao {
     Optional<User> findUserByEmail(String email);
+    Optional<User> findUserByEmailOrUsername(String email, String username);
     boolean saveUser(User user);
     Optional<User> findUserById(Long id);
     boolean editUser(User user);

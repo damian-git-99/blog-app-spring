@@ -36,6 +36,23 @@ public class UserDaoJDBC implements UserDao {
     }
 
     @Override
+    public Optional<User> findUserByEmailOrUsername(String email, String username) {
+        try {
+            String query = "SELECT id, username, email FROM users WHERE email = ? OR username = ?";
+            log.info("Executing SQL query: {}", query);
+            log.debug("Param email: {}", email);
+            User user = jdbc.queryForObject(
+                    query,
+                    BeanPropertyRowMapper.newInstance(User.class),
+                    email
+            );
+            return Optional.ofNullable(user);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public boolean saveUser(User user) {
         String query = "INSERT INTO users (email, password, username) VALUES (?, ?, ?)";
         log.info("Executing SQL query: {}", query);
