@@ -5,10 +5,14 @@ import com.blog.app.post.service.PostService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+
+import static com.blog.app.common.CommonUtils.handleValidationExceptions;
 
 @RestController
 @RequestMapping("/posts")
@@ -23,9 +27,12 @@ public class PostController {
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    void createPost(@RequestBody @Valid Post post, MultipartFile image) {
-        // todo: validate post
+    ResponseEntity<?> createPost(@RequestBody @Valid Post post, BindingResult br, MultipartFile image) {
+        if (br.hasErrors()) {
+            return handleValidationExceptions(br);
+        }
         postService.createPost(post, image);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}")
