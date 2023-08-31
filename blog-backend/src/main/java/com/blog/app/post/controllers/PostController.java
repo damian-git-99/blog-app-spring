@@ -1,9 +1,12 @@
 package com.blog.app.post.controllers;
 
 import com.blog.app.post.model.Post;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.blog.app.post.service.PostService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -11,25 +14,61 @@ import java.util.List;
 @RequestMapping("/posts")
 public class PostController {
 
-    @GetMapping("")
-    List<Post> getRecentlyPosts() {
-        Post post1 = new Post();
-        post1.setTitle("Post 1");
-        post1.setSummary("Summary 1");
-        post1.setContent("Content 1");
-        post1.setImage("Image 1");
-        post1.setCategory("Category 1");
-        return List.of(post1);
+    private final PostService postService;
+
+    @Autowired
+    public PostController(PostService postService) {
+        this.postService = postService;
     }
 
-    // todo: create post
-    // todo: get recently posts
-    // todo: get my posts
-    // todo: delete post by id
-    // todo: get post by id
-    // todo: edit post
-    // todo: togglePublicationStatus
-    // todo: getAllPostsByUsername
+    @PostMapping("")
+    @ResponseStatus(HttpStatus.CREATED)
+    void createPost(@RequestBody @Valid Post post, MultipartFile image) {
+        // todo: validate post
+        postService.createPost(post, image);
+    }
 
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    void editPost(@PathVariable Long id, @RequestBody Post post, MultipartFile image) {
+        post.setId(id);
+        postService.editPost(post, image);
+    }
+
+    @GetMapping("")
+    @ResponseStatus(HttpStatus.OK)
+    List<Post> getRecentlyPosts() {
+        return postService.getRecentlyPublishedPosts();
+    }
+
+    @GetMapping("/my-posts")
+    @ResponseStatus(HttpStatus.OK)
+    List<Post> getPostsOfAuthenticatedUser() {
+        return postService.getPostsOfAuthenticatedUser();
+    }
+
+    @GetMapping("/by-username/{username}")
+    @ResponseStatus(HttpStatus.OK)
+    List<Post> getAllPostsByUsername(@PathVariable String username) {
+        return postService.getPostsByUsername(username);
+    }
+
+    @GetMapping("/{postId}")
+    @ResponseStatus(HttpStatus.OK)
+    Post getPostById(@PathVariable("postId") Long postId) {
+        return postService.getPostById(postId);
+    }
+
+    @DeleteMapping("/{postId}")
+    @ResponseStatus(HttpStatus.OK)
+    void deletePostById(@PathVariable("postId") Long postId) {
+        postService.deletePostById(postId);
+    }
+
+    @PutMapping("/toggle-status/{postId}")
+    @ResponseStatus(HttpStatus.OK)
+    void togglePublicationStatus(@PathVariable Long postId) {
+        postService.togglePublicationStatus(postId);
+    }
 
 }
