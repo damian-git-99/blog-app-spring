@@ -16,7 +16,7 @@ public interface PostService {
 
     List<Post> getRecentlyPublishedPosts();
 
-    List<Post> getPostsOfAuthenticatedUser(Long userId);
+    List<Post> getPostsOfAuthenticatedUser();
 
     List<Post> getPostsByUsername(String username);
 

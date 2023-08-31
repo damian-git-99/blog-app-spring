@@ -85,7 +85,7 @@ public class PostServiceImplementation implements PostService {
     }
 
     @Override
-    public List<Post> getPostsOfAuthenticatedUser(Long userId) {
+    public List<Post> getPostsOfAuthenticatedUser() {
         log.info("Getting posts of authenticated user");
         JWTAuthentication authenticatedUser = getAuthenticatedUser();
         return updatePostImageUrls(postDao.getPostsByUserId(authenticatedUser.getUserId()));
