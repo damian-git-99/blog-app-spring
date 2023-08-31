@@ -21,7 +21,7 @@ public class UserDaoJDBC implements UserDao {
     @Override
     public Optional<User> findUserByEmail(String email) {
         try {
-            String query = "SELECT * FROM users WHERE email = ?";
+            String query = "SELECT id, username, email FROM users WHERE email = ?";
             log.info("Executing SQL query: {}", query);
             log.debug("Param email: {}", email);
             User user = jdbc.queryForObject(
@@ -51,7 +51,7 @@ public class UserDaoJDBC implements UserDao {
 
     @Override
     public Optional<User> findUserById(Long id) {
-        String query = "SELECT * FROM users WHERE id = ?";
+        String query = "SELECT id, username, email FROM users WHERE id = ?";
         log.info("Executing SQL query: {}", query);
         log.debug("Param id: {}", id);
         try {
@@ -83,7 +83,7 @@ public class UserDaoJDBC implements UserDao {
 
     @Override
     public Optional<User> findUserByUsername(String username) {
-        String query = "SELECT * FROM users WHERE username = ?";
+        String query = "SELECT id, username, email FROM users WHERE username = ?";
         log.info("Executing SQL query: {}", query);
         log.debug("Param username: {}", username);
         try {

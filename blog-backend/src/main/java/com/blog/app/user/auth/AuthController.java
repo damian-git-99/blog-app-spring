@@ -1,6 +1,7 @@
 package com.blog.app.user.auth;
 
 import com.blog.app.config.security.jwt.JWTService;
+import com.blog.app.user.auth.dto.UserInfoResponse;
 import com.blog.app.user.auth.service.AuthService;
 import com.blog.app.user.model.User;
 import com.blog.app.user.service.UserService;
@@ -43,7 +44,9 @@ public class AuthController {
             return handleValidationExceptions(br);
         }
         authService.registerUser(user);
-        return ResponseEntity.ok("register Successfully");
+        return ResponseEntity.ok(
+                new UserInfoResponse(user)
+        );
     }
 
     @PostMapping("/logout")
@@ -66,14 +69,14 @@ public class AuthController {
         cookie.setMaxAge(60 * 60 * 24 * 365);
         response.addCookie(cookie);
         return ResponseEntity.ok(
-                createResponseBody(optionalUser.get())
+                new UserInfoResponse(user)
         );
     }
 
     @PostMapping("/recover-password")
     @ResponseStatus(HttpStatus.OK)
-    void recoverPassword(@RequestBody UserDTO userDTO) {
-        String email = userDTO.getEmail();
+    void recoverPassword(@RequestBody UserRequest userRequest) {
+        String email = userRequest.getEmail();
         authService.recoverPassword(email);
     }
 
@@ -86,17 +89,9 @@ public class AuthController {
 
     @PostMapping("/reset-password/{token}")
     @ResponseStatus(HttpStatus.OK)
-    void resetPassword(@PathVariable String token, @RequestBody UserDTO userDTO) {
-        String password = userDTO.getPassword();
+    void resetPassword(@PathVariable String token, @RequestBody UserRequest userRequest) {
+        String password = userRequest.getPassword();
         authService.resetPassword(token, password);
-    }
-
-    private Map<String, Object> createResponseBody(User user) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("id", user.getId());
-        body.put("username", user.getUsername());
-        body.put("email", user.getEmail());
-        return body;
     }
 
     /**
@@ -114,7 +109,7 @@ public class AuthController {
     }
 
     @Data
-    static class UserDTO {
+    static class UserRequest {
         private String email;
         private String password;
     }
