@@ -48,10 +48,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public void registerUser(User user) {
         log.info("Registering user: {}", user.getEmail());
-        Optional<User> optionalUser = userDao.findUserByEmailOrUsername(user.getEmail(), user.getUsername());
-        if (optionalUser.isPresent()) {
-            throw new UserAlreadyExistsException("Email or username already exists");
-        }
+        ensureUsernameAndEmailAreUnique(user.getUsername(), user.getEmail());
         String hashedPassword = this.passwordEncoder.encode(user.getPassword());
         user.setPassword(hashedPassword);
         userDao.saveUser(user);
@@ -115,5 +112,24 @@ public class AuthServiceImpl implements AuthService {
                 "</div>";
     }
 
+    private void ensureUsernameAndEmailAreUnique(String username, String email) throws UserAlreadyExistsException {
+        Optional<User> optionalUser = userDao.findUserByEmailOrUsername(email, username);
+        if (optionalUser.isPresent()) {
+            log.warn("Username or email already exists");
+
+            if (optionalUser.get().getEmail().equals(email)
+                    && optionalUser.get().getUsername().equals(username)) {
+                throw new UserAlreadyExistsException("Email and username already exists");
+            }
+
+            if (optionalUser.get().getEmail().equals(email)) {
+                throw new UserAlreadyExistsException("Email already exists");
+            }
+
+            if (optionalUser.get().getUsername().equals(username)) {
+                throw new UserNotFoundException("Username already exists");
+            }
+        }
+    }
 
 }
