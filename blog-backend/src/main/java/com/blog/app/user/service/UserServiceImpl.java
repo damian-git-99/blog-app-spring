@@ -48,9 +48,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
         User oldUser = userToEdit.get();
         JWTAuthentication auth = getAuthenticatedUser();
-        if (!Objects.equals(auth.getUserId(), user.getId())) {
-            throw new RuntimeException("You are not allowed to edit this user");
-        }
+        ensureEditPermissionUser(user, auth);
         ensureUsernameAndEmailAreUnique(user.getUsername(), user.getEmail(), oldUser);
         user.setEmail(mergeNullableFields(oldUser.getEmail(), user.getEmail()));
         user.setUsername(mergeNullableFields(oldUser.getUsername(), user.getUsername()));
@@ -125,4 +123,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             }
         }
     }
+
+    /**
+     * Ensures that the authenticated user has permission to edit the specified user.
+     *
+     * @param user The user to be edited.
+     * @param auth The JWTAuthentication object representing the authenticated user.
+     * @throws RuntimeException If the authenticated user does not have permission to edit the specified user.
+     */
+    private void ensureEditPermissionUser(User user, JWTAuthentication auth) {
+        if (!Objects.equals(auth.getUserId(), user.getId())) {
+            // todo: throw custom exception
+            throw new RuntimeException("You are not allowed to edit this user");
+        }
+    }
+
 }
