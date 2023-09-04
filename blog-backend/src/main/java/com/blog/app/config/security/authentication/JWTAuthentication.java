@@ -28,6 +28,12 @@ public class JWTAuthentication implements Authentication {
         this.username = "";
     }
 
+    public JWTAuthentication(String username, Long userId) {
+        this.username = username;
+        this.userId = userId;
+        this.token = "";
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.emptyList();
