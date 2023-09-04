@@ -3,12 +3,14 @@ package com.blog.app.config.security;
 import com.blog.app.config.security.authentication.JWTAuthentication;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 @Slf4j
-public class CommonSecurityUtils {
+@Component
+public class AuthenticationUtils {
 
 
-    private CommonSecurityUtils() {
+    private AuthenticationUtils() {
     }
 
     /**
@@ -17,7 +19,7 @@ public class CommonSecurityUtils {
      * @return The authenticated user's JWTAuthentication object.
      * @throws RuntimeException if the user is not authenticated.
      */
-    static public JWTAuthentication getAuthenticatedUser() {
+    public JWTAuthentication getAuthenticatedUser() {
         log.debug("Getting authenticated user from security context");
         JWTAuthentication principal = (JWTAuthentication) SecurityContextHolder
                 .getContext().getAuthentication();
@@ -36,7 +38,7 @@ public class CommonSecurityUtils {
      * @param username The username for which authentication is being verified.
      * @return true if the authenticated user matches the provided username, false otherwise.
      */
-    static public boolean isAuthenticatedUser(String username) {
+    public boolean isAuthenticatedUser(String username) {
         JWTAuthentication authenticatedUser = getAuthenticatedUser();
         return authenticatedUser.getUsername().equals(username);
     }

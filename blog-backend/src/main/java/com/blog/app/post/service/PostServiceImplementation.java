@@ -1,5 +1,6 @@
 package com.blog.app.post.service;
 
+import com.blog.app.config.security.AuthenticationUtils;
 import com.blog.app.config.security.authentication.JWTAuthentication;
 import com.blog.app.common.image.ImageService;
 import com.blog.app.post.dao.PostDao;
@@ -16,8 +17,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static com.blog.app.common.CommonUtils.mergeNullableFields;
-import static com.blog.app.config.security.CommonSecurityUtils.getAuthenticatedUser;
-import static com.blog.app.config.security.CommonSecurityUtils.isAuthenticatedUser;
 
 @Service
 @Slf4j
@@ -25,17 +24,23 @@ public class PostServiceImplementation implements PostService {
 
     private final PostDao postDao;
     private final ImageService imageService;
+    private final AuthenticationUtils authenticationUtils;
 
     @Autowired
-    public PostServiceImplementation(PostDao postDao, ImageService imageService) {
+    public PostServiceImplementation(
+            PostDao postDao,
+            ImageService imageService,
+            AuthenticationUtils authenticationUtils
+    ) {
         this.postDao = postDao;
         this.imageService = imageService;
+        this.authenticationUtils = authenticationUtils;
     }
 
     @Override
     public boolean createPost(Post post, MultipartFile image) {
         log.info("Creating post");
-        JWTAuthentication authenticatedUser = getAuthenticatedUser();
+        JWTAuthentication authenticatedUser = authenticationUtils.getAuthenticatedUser();
         post.setUserId(authenticatedUser.getUserId());
         LocalDateTime now = LocalDateTime.now();
         post.setCreated_at(now);
@@ -87,14 +92,14 @@ public class PostServiceImplementation implements PostService {
     @Override
     public List<Post> getPostsOfAuthenticatedUser() {
         log.info("Getting posts of authenticated user");
-        JWTAuthentication authenticatedUser = getAuthenticatedUser();
+        JWTAuthentication authenticatedUser = authenticationUtils.getAuthenticatedUser();
         return updatePostImageUrls(postDao.getPostsByUserId(authenticatedUser.getUserId()));
     }
 
     @Override
     public List<Post> getPostsByUsername(String username) {
         log.info("Getting posts by username: " + username);
-        if (isAuthenticatedUser(username)) {
+        if (authenticationUtils.isAuthenticatedUser(username)) {
             return updatePostImageUrls(postDao.getAllPostsByUsername(username));
         }
         return updatePostImageUrls(postDao.getPublicPostsByUsername(username));
@@ -179,7 +184,7 @@ public class PostServiceImplementation implements PostService {
     private boolean isPostOwnedByAuthenticatedUser(Post post) {
         try {
             log.info("Checking if post belongs to authenticated user");
-            JWTAuthentication auth = getAuthenticatedUser();
+            JWTAuthentication auth = authenticationUtils.getAuthenticatedUser();
             return Objects.equals(auth.getUserId(), post.getUserId());
         } catch (Exception e) {
             log.error("Error checking if post belongs to authenticated user");

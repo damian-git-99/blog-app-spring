@@ -1,5 +1,6 @@
 package com.blog.app.user.service;
 
+import com.blog.app.config.security.AuthenticationUtils;
 import com.blog.app.config.security.authentication.JWTAuthentication;
 import com.blog.app.user.dao.UserDao;
 import com.blog.app.user.exceptions.UserAlreadyExistsException;
@@ -20,7 +21,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static com.blog.app.common.CommonUtils.mergeNullableFields;
-import static com.blog.app.config.security.CommonSecurityUtils.getAuthenticatedUser;
 
 @Service
 @Slf4j
@@ -28,11 +28,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final UserDao userDao;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationUtils authenticationUtils;
 
     @Autowired
-    public UserServiceImpl(UserDao userDao, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(
+            UserDao userDao,
+            PasswordEncoder passwordEncoder,
+            AuthenticationUtils authenticationUtils
+    ) {
         this.userDao = userDao;
         this.passwordEncoder = passwordEncoder;
+        this.authenticationUtils = authenticationUtils;
     }
 
     @Override
@@ -47,7 +53,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new UserNotFoundException("User not found: " + user.getId());
         }
         User oldUser = userToEdit.get();
-        JWTAuthentication auth = getAuthenticatedUser();
+        JWTAuthentication auth = authenticationUtils.getAuthenticatedUser();
         ensureEditPermissionUser(user, auth);
         ensureUsernameAndEmailAreUnique(user.getUsername(), user.getEmail(), oldUser);
         user.setEmail(mergeNullableFields(oldUser.getEmail(), user.getEmail()));
