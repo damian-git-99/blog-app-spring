@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS blog_app.posts
 (
     id           INT          NOT NULL AUTO_INCREMENT,
     title        VARCHAR(255) NOT NULL,
-    content      VARCHAR(255) NOT NULL,
+    content      VARCHAR(8000) NOT NULL,
     summary      VARCHAR(255) NOT NULL,
     image        VARCHAR(255),
     category     VARCHAR(255) NOT NULL,
@@ -26,3 +26,14 @@ CREATE TABLE IF NOT EXISTS blog_app.posts
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
+-- todo: favorite table user -> post: one to many
+CREATE TABLE IF NOT EXISTS blog_app.favorite_posts
+(
+    id  INT NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    post_id INT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (post_id) REFERENCES posts (id),
+    UNIQUE KEY unique_user_post (user_id, post_id)
+);
