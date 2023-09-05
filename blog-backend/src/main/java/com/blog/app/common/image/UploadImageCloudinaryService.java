@@ -1,28 +1,67 @@
 package com.blog.app.common.image;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Map;
 
 @Service
 @Slf4j
 public class UploadImageCloudinaryService implements ImageService {
 
+    private final Cloudinary cloudinary;
+    @Value("${cloudinary.cloud-name}")
+    private String cloudName;
+    @Value("${cloudinary.api-key}")
+    private String apiKey;
+    @Value("${cloudinary.api-secret")
+    private String apiSecret;
+
+    public UploadImageCloudinaryService() {
+        cloudinary = new Cloudinary(ObjectUtils.asMap(
+                "cloud_name", cloudName,
+                "api_key", apiKey,
+                "api_secret", apiSecret
+        ));
+    }
+
     @Override
     public String uploadImage(MultipartFile file) {
-        log.debug("Uploading image to cloudinary image name is {} ", file.getOriginalFilename());
-        return "image.png";
+        String contentType = file.getContentType();
+        if (!"image/png".equals(contentType) && !"image/jpeg".equals(contentType)) {
+            throw new IllegalArgumentException("Unsupported file type. You must upload a PNG or JPG image.");
+        }
+
+        Map uploadResult = null;
+        try {
+            uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        String imageUrl = (String) uploadResult.get("secure_url");
+        return imageUrl;
     }
 
     @Override
     public void deleteImage(String imageId) {
         log.debug("Deleting image from cloudinary {} ", imageId);
+        try {
+            cloudinary.uploader().destroy(imageId, ObjectUtils.emptyMap());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public String getImageUrl(String imageId) {
         log.debug("Getting image url from cloudinary {} ", imageId);
-        return "https://images.unsplash.com/photo-1684577753340-de97c66fa6fd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1032&q=80";
+        return cloudinary.url().generate(imageId);
     }
 
 }
