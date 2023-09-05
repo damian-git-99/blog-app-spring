@@ -112,7 +112,7 @@ public class AuthServiceImpl implements AuthService {
                 "</div>";
     }
 
-    private void ensureUsernameAndEmailAreUnique(String username, String email) throws UserAlreadyExistsException {
+    private void ensureUsernameAndEmailAreUnique(String username, String email) {
         Optional<User> optionalUser = userDao.findUserByEmailOrUsername(email, username);
         if (optionalUser.isPresent()) {
             log.warn("Username or email already exists");
