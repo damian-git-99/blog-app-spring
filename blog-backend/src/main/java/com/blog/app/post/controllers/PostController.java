@@ -27,7 +27,10 @@ public class PostController {
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    ResponseEntity<?> createPost(@RequestBody @Valid Post post, BindingResult br, MultipartFile image) {
+    ResponseEntity<?> createPost(
+            @RequestBody @Valid Post post,
+            BindingResult br, @RequestParam("file") MultipartFile image
+    ) {
         if (br.hasErrors()) {
             return handleValidationExceptions(br);
         }
@@ -37,7 +40,11 @@ public class PostController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    void editPost(@PathVariable Long id, @RequestBody Post post, MultipartFile image) {
+    void editPost(
+            @PathVariable Long id,
+            @RequestBody Post post,
+            @RequestParam("file") MultipartFile image
+    ) {
         post.setId(id);
         postService.editPost(post, image);
     }
