@@ -1,11 +1,13 @@
 package com.blog.app.user.dao;
 
+import com.blog.app.post.model.Post;
 import com.blog.app.user.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -112,6 +114,56 @@ public class UserDaoJDBC implements UserDao {
             return Optional.ofNullable(user);
         } catch (Exception e) {
             return Optional.empty();
+        }
+    }
+
+    @Override
+    public void addFavoritePost(Long postId, Long userId) {
+        String query = "INSERT INTO favorite_posts (post_id, user_id) VALUES (?, ?)";
+        log.info("Executing SQL query: {}", query);
+        log.debug("Params: {} {}", postId, userId);
+        jdbc.update(query, postId, userId);
+    }
+
+    @Override
+    public void removeFavoritePost(Long postId, Long userId) {
+        String query = "DELETE FROM favorite_posts WHERE post_id = ? AND user_id = ?";
+        log.info("Executing SQL query: {}", query);
+        log.debug("Params: {} {}", postId, userId);
+        jdbc.update(query, postId, userId);
+    }
+
+    @Override
+    public boolean isPostMarkedAsFavorite(Long postId, Long userId) {
+        String query = "SELECT * FROM favorite_posts WHERE post_id = ? AND user_id = ?";
+        log.info("Executing SQL query: {}", query);
+        log.debug("Params: {} {}", postId, userId);
+        try {
+            jdbc.queryForObject(query, BeanPropertyRowMapper.newInstance(User.class), postId, userId);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
+    public List<Post> getFavoritePostsById(Long userId) {
+        String query =
+                "SELECT p.id as id, p.title as title, p.content as content  " +
+                        "FROM favorite_posts " +
+                        "JOIN posts p ON favorite_posts.user_id = posts.user_id  " +
+                        "WHERE user_id = ?";
+        log.info("Executing SQL query: {}", query);
+        log.debug("Param userId: {}", userId);
+        try {
+            List<Post> posts = jdbc.query(
+                    query,
+                    BeanPropertyRowMapper.newInstance(Post.class),
+                    userId
+            );
+            return posts;
+        } catch (Exception e) {
+            return null;
         }
     }
 }

@@ -2,6 +2,7 @@ package com.blog.app.user.service;
 
 import com.blog.app.config.security.AuthenticationUtils;
 import com.blog.app.config.security.authentication.JWTAuthentication;
+import com.blog.app.user.auth.dto.UserInfoResponse;
 import com.blog.app.user.dao.UserDao;
 import com.blog.app.user.exceptions.UserAlreadyExistsException;
 import com.blog.app.user.exceptions.UserNotFoundException;
@@ -47,6 +48,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    public Optional<UserInfoResponse> getAuthenticatedUserInfo() {
+        JWTAuthentication auth = authenticationUtils.getAuthenticatedUser();
+        return findUserById(auth.getUserId())
+                .map(UserInfoResponse::new);
+    }
+
+    @Override
     public boolean editUser(User user) {
         Optional<User> userToEdit = userDao.findUserById(user.getId());
         if (userToEdit.isEmpty()) {
@@ -70,6 +78,24 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public Optional<User> findUserByEmail(String email) {
         return userDao.findUserByEmail(email);
+    }
+
+    @Override
+    public void addFavoritePost(Long postId) {
+        JWTAuthentication auth = authenticationUtils.getAuthenticatedUser();
+        userDao.addFavoritePost(postId, auth.getUserId());
+    }
+
+    @Override
+    public void removeFavoritePost(Long postId) {
+        JWTAuthentication auth = authenticationUtils.getAuthenticatedUser();
+        userDao.removeFavoritePost(postId, auth.getUserId());
+    }
+
+    @Override
+    public boolean isPostMarkedAsFavorite(Long postId) {
+        JWTAuthentication auth = authenticationUtils.getAuthenticatedUser();
+        return userDao.isPostMarkedAsFavorite(postId, auth.getUserId());
     }
 
     @Override
