@@ -29,11 +29,9 @@ CREATE TABLE IF NOT EXISTS blog_app.posts
 -- todo: favorite table user -> post: one to many
 CREATE TABLE IF NOT EXISTS blog_app.favorite_posts
 (
-    id  INT NOT NULL AUTO_INCREMENT,
     user_id INT NOT NULL,
     post_id INT NOT NULL,
-    PRIMARY KEY (id),
+    PRIMARY KEY (user_id, post_id),
     FOREIGN KEY (user_id) REFERENCES users (id),
-    FOREIGN KEY (post_id) REFERENCES posts (id),
-    UNIQUE KEY unique_user_post (user_id, post_id)
+    FOREIGN KEY (post_id) REFERENCES posts (id)
 );
