@@ -41,8 +41,8 @@ public class PostDaoJDBC implements PostDao {
                 post.getCategory(),
                 post.getTime_to_read(),
                 post.isPublish(),
-                post.getCreated_at(),
-                post.getUpdated_at(),
+                post.getCreatedAt(),
+                post.getUpdatedAt(),
                 post.getUserId()
         );
         int res = jdbc.update(
@@ -53,8 +53,8 @@ public class PostDaoJDBC implements PostDao {
                 post.getCategory(),
                 post.getTime_to_read(),
                 post.isPublish(),
-                post.getCreated_at(),
-                post.getUpdated_at(),
+                post.getCreatedAt(),
+                post.getUpdatedAt(),
                 post.getUserId()
         );
         if (res == 1) log.info("Post saved successfully");
@@ -83,7 +83,7 @@ public class PostDaoJDBC implements PostDao {
                 post.getCategory(),
                 post.getTime_to_read(),
                 post.isPublish(),
-                post.getUpdated_at(),
+                post.getUpdatedAt(),
                 post.getId()
         );
         int res = jdbc.update(
@@ -95,7 +95,7 @@ public class PostDaoJDBC implements PostDao {
                 post.getCategory(),
                 post.getTime_to_read(),
                 post.isPublish(),
-                post.getUpdated_at(),
+                post.getUpdatedAt(),
                 post.getId()
         );
         return res == 1;

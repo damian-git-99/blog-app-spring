@@ -43,8 +43,8 @@ public class PostServiceImplementation implements PostService {
         JWTAuthentication authenticatedUser = authenticationUtils.getAuthenticatedUser();
         post.setUserId(authenticatedUser.getUserId());
         LocalDateTime now = LocalDateTime.now();
-        post.setCreated_at(now);
-        post.setUpdated_at(now);
+        post.setCreatedAt(now);
+        post.setUpdatedAt(now);
         if (isImageNotEmpty(image)) {
             String imageId = imageService.uploadImage(image);
             post.setImage(imageId);
@@ -63,7 +63,7 @@ public class PostServiceImplementation implements PostService {
         post.setContent(oldPost.getContent() == null ? post.getContent() : oldPost.getSummary());
         post.setCategory(mergeNullableFields(oldPost.getCategory(), post.getCategory()));
         post.setTime_to_read(mergeNullableFields(oldPost.getTime_to_read(), post.getTime_to_read()));
-        post.setUpdated_at(LocalDateTime.now());
+        post.setUpdatedAt(LocalDateTime.now());
         if (isImageNotEmpty(image)) {
             String imageId = imageService.uploadImage(image);
             deleteImageIfPostHasImage(oldPost);
