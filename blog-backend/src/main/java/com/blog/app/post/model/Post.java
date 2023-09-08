@@ -26,8 +26,8 @@ public class Post {
     private boolean isPublish = false;
     @NotEmpty
     private Long userId;
-    private LocalDateTime created_at;
-    private LocalDateTime updated_at;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public boolean hasImage() {
         return image != null && !image.isEmpty();
