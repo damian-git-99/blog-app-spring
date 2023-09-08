@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.blog.app.common.CommonUtils.handleValidationExceptions;
 
@@ -28,8 +29,9 @@ public class PostController {
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     ResponseEntity<?> createPost(
-            @RequestBody @Valid Post post,
-            BindingResult br, @RequestParam("file") MultipartFile image
+            Post post,
+            BindingResult br,
+            @RequestParam(name = "file", required = false) MultipartFile image
     ) {
         if (br.hasErrors()) {
             return handleValidationExceptions(br);
@@ -51,8 +53,10 @@ public class PostController {
 
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
-    List<Post> getRecentlyPosts() {
-        return postService.getRecentlyPublishedPosts();
+    Map getRecentlyPosts() {
+        return Map.of(
+                "posts", postService.getRecentlyPublishedPosts()
+        );
     }
 
     @GetMapping("/my-posts")

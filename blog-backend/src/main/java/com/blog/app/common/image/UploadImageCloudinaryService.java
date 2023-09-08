@@ -3,9 +3,10 @@ package com.blog.app.common.image;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.util.Map;
@@ -15,14 +16,13 @@ import java.util.Map;
 public class UploadImageCloudinaryService implements ImageService {
 
     private final Cloudinary cloudinary;
-    @Value("${cloudinary.cloud-name}")
-    private String cloudName;
-    @Value("${cloudinary.api-key}")
-    private String apiKey;
-    @Value("${cloudinary.api-secret")
-    private String apiSecret;
 
-    public UploadImageCloudinaryService() {
+    @Autowired
+    public UploadImageCloudinaryService(
+            @Value("${cloudinary.cloud-name}") String cloudName,
+            @Value("${cloudinary.api-key}") String apiKey,
+            @Value("${cloudinary.api-secret}") String apiSecret
+    ) {
         cloudinary = new Cloudinary(ObjectUtils.asMap(
                 "cloud_name", cloudName,
                 "api_key", apiKey,
@@ -44,8 +44,9 @@ public class UploadImageCloudinaryService implements ImageService {
             throw new RuntimeException(e);
         }
 
-        String imageUrl = (String) uploadResult.get("secure_url");
-        return imageUrl;
+        String publicId = (String) uploadResult.get("public_id");
+        System.out.println(uploadResult);
+        return publicId;
     }
 
     @Override

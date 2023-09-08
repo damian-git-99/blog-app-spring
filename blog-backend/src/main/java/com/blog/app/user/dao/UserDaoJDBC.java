@@ -23,7 +23,7 @@ public class UserDaoJDBC implements UserDao {
     @Override
     public Optional<User> findUserByEmail(String email) {
         try {
-            String query = "SELECT id, username, email FROM users WHERE email = ?";
+            String query = "SELECT * FROM users WHERE email = ?";
             log.info("Executing SQL query: {}", query);
             log.debug("Param email: {}", email);
             User user = jdbc.queryForObject(
