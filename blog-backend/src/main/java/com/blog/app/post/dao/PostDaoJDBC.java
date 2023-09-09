@@ -1,6 +1,7 @@
 package com.blog.app.post.dao;
 
 import com.blog.app.post.model.Post;
+import com.blog.app.user.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -117,10 +118,13 @@ public class PostDaoJDBC implements PostDao {
 
     @Override
     public List<Post> getRecentlyPublishedPosts() {
-        String query = "SELECT * FROM posts WHERE isPublish = 1 ORDER BY id DESC LIMIT 50";
+        String query = "SELECT * FROM posts " +
+                "JOIN users on posts.user_id = users.id " +
+                "WHERE isPublish = 1 " +
+                "ORDER BY posts.id DESC LIMIT 50";
         log.info("Executing SQL query: {}", query);
         log.debug("Params: {}", query);
-        List<Post> posts = jdbc.query(query, BeanPropertyRowMapper.newInstance(Post.class));
+        List<Post> posts = jdbc.query(query, (rs, rowNum) -> mapPost(rs));
         return posts;
     }
 
@@ -139,12 +143,14 @@ public class PostDaoJDBC implements PostDao {
 
     @Override
     public List<Post> getPublicPostsByUsername(String username) {
-        String query = "SELECT * FROM posts WHERE user_id = (SELECT id FROM users WHERE username = ?) AND posts.isPublish = 1";
+        String query = "SELECT * FROM posts " +
+                "JOIN users ON posts.user_id = users.id " +
+                "WHERE users.username = ? AND posts.isPublish = 1";
         log.info("Executing SQL query: {}", query);
         log.debug("Params: {}", query);
         List<Post> posts = jdbc.query(
                 query,
-                BeanPropertyRowMapper.newInstance(Post.class),
+                (rs, rowNum) -> mapPost(rs),
                 username
         );
         return posts;
@@ -152,12 +158,14 @@ public class PostDaoJDBC implements PostDao {
 
     @Override
     public List<Post> getAllPostsByUsername(String username) {
-        String query = "SELECT * FROM posts WHERE user_id = (SELECT id FROM users WHERE username = ?)";
+        String query = "SELECT * FROM posts  " +
+                "JOIN users ON posts.user_id = users.id " +
+                "WHERE users.username = ?";
         log.info("Executing SQL query: {}", query);
         log.debug("Params: {}", query);
         List<Post> posts = jdbc.query(
                 query,
-                BeanPropertyRowMapper.newInstance(Post.class),
+                (rs, rowNum) -> mapPost(rs),
                 username
         );
         return posts;
@@ -165,7 +173,10 @@ public class PostDaoJDBC implements PostDao {
 
     @Override
     public Optional<Post> getPostById(Long postId) {
-        String query = "SELECT * FROM posts WHERE id = ?";
+        String query = "SELECT * FROM posts " +
+                "JOIN users " +
+                "on posts.user_id = users.id " +
+                "WHERE posts.id = ?";
         log.info("Executing SQL query: {}", query);
         log.debug("Params: {}", query);
         try {
@@ -191,9 +202,15 @@ public class PostDaoJDBC implements PostDao {
         post.setCategory(rs.getString("category"));
         post.setTime_to_read(rs.getInt("time_to_read"));
         post.setPublish(rs.getBoolean("isPublish"));
-        post.setUserId(rs.getLong("user_id"));
         post.setCreatedAt(rs.getObject("created_at", LocalDateTime.class));
         post.setUpdatedAt(rs.getObject("updated_at", LocalDateTime.class));
+        User user = new User(
+                rs.getLong("user_id"),
+                rs.getString("username"),
+                rs.getString("email"),
+                ""
+        );
+        post.setUser(user);
         return post;
     }
 
