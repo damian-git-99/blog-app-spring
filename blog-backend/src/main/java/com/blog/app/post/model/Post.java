@@ -1,5 +1,6 @@
 package com.blog.app.post.model;
 
+import com.blog.app.user.model.User;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Post {
+
     private Long id;
     @NotEmpty
     private String title;
@@ -24,12 +26,15 @@ public class Post {
     @NotEmpty
     private int time_to_read;
     private boolean isPublish = false;
-    @NotEmpty
-    private Long userId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private User user;
 
     public boolean hasImage() {
         return image != null && !image.isEmpty();
+    }
+
+    public long getUserId() {
+        return user.getId();
     }
 }

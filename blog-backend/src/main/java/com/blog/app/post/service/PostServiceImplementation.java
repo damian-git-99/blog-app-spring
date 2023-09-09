@@ -6,6 +6,7 @@ import com.blog.app.common.image.ImageService;
 import com.blog.app.post.dao.PostDao;
 import com.blog.app.post.exceptions.PostNotFoundException;
 import com.blog.app.post.model.Post;
+import com.blog.app.user.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,7 @@ public class PostServiceImplementation implements PostService {
     public boolean createPost(Post post, MultipartFile image) {
         log.info("Creating post");
         JWTAuthentication authenticatedUser = authenticationUtils.getAuthenticatedUser();
-        post.setUserId(authenticatedUser.getUserId());
+        post.setUser(new User(authenticatedUser.getUserId()));
         LocalDateTime now = LocalDateTime.now();
         post.setCreatedAt(now);
         post.setUpdatedAt(now);
