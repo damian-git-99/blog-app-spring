@@ -17,7 +17,7 @@ public class RequestLoggingAspect {
     public void logRequest() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String url = request.getRequestURL().toString();
-        log.info("Request received for URL: {}", url);
+        log.debug("Request received for URL: {}", url);
     }
 
 }
