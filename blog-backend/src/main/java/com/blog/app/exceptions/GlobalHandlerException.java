@@ -1,6 +1,7 @@
 package com.blog.app.exceptions;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -26,11 +27,20 @@ public class GlobalHandlerException {
     ResponseEntity<?> handleError(Exception ex) {
         log.warn("Error: {}", ex.getMessage());
         Map<String, Object> map = new HashMap<>();
-        map.put("error", ex.getMessage());
+        map.put("error", "Error on server");
         return ResponseEntity
                 .internalServerError()
                 .body(map);
     }
 
+    @ExceptionHandler(DataAccessException.class)
+    ResponseEntity<?> handleError(DataAccessException ex) {
+        log.error("Error: {}", ex.getMessage());
+        Map<String, Object> map = new HashMap<>();
+        map.put("error", "Error on server");
+        return ResponseEntity
+                .internalServerError()
+                .body(map);
+    }
 
 }
