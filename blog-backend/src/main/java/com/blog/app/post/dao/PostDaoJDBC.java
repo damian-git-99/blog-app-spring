@@ -6,6 +6,9 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -168,13 +171,30 @@ public class PostDaoJDBC implements PostDao {
         try {
             Post post = jdbc.queryForObject(
                     query,
-                    BeanPropertyRowMapper.newInstance(Post.class),
+                    (rs, rowNum) -> mapPost(rs),
                     postId
             );
             return Optional.ofNullable(post);
         } catch (Exception e) {
+            System.out.println(e);
             return Optional.empty();
         }
+    }
+
+    private Post mapPost(ResultSet rs) throws SQLException {
+        Post post = new Post();
+        post.setId(rs.getLong("id"));
+        post.setTitle(rs.getString("title"));
+        post.setSummary(rs.getString("summary"));
+        post.setContent(rs.getString("content"));
+        post.setImage(rs.getString("image"));
+        post.setCategory(rs.getString("category"));
+        post.setTime_to_read(rs.getInt("time_to_read"));
+        post.setPublish(rs.getBoolean("isPublish"));
+        post.setUserId(rs.getLong("user_id"));
+        post.setCreatedAt(rs.getObject("created_at", LocalDateTime.class));
+        post.setUpdatedAt(rs.getObject("updated_at", LocalDateTime.class));
+        return post;
     }
 
     @Override
