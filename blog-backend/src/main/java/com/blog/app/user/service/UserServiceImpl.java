@@ -41,12 +41,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Optional<User> findUserById(Long id) {
-        return userDao.findUserById(id);
+    public User findUserById(Long id) {
+        return userDao.findUserById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
     }
 
     @Override
-    public Optional<User> getAuthenticatedUserInfo() {
+    public User getAuthenticatedUserInfo() {
         JWTAuthentication auth = authenticationUtils.getAuthenticatedUser();
         return findUserById(auth.getUserId());
     }
@@ -68,13 +69,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Optional<User> findUserByUsername(String username) {
-        return userDao.findUserByUsername(username);
+    public User findUserByUsername(String username) {
+        return userDao
+                .findUserByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + username));
     }
 
     @Override
-    public Optional<User> findUserByEmail(String email) {
-        return userDao.findUserByEmail(email);
+    public User findUserByEmail(String email) {
+        return userDao
+                .findUserByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + email));
     }
 
     @Override

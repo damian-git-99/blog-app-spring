@@ -76,8 +76,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             , Authentication authResult) throws IOException, ServletException {
 
         Map<String, Object> body = new HashMap<>();
-        Optional<User> optionalUser = userService.findUserByEmail(authResult.getName());
-        User user = optionalUser.get();
+        User user = userService.findUserByEmail(authResult.getName());
 
         String token = jwtService.createToken(authResult.getName(), createClaims(user));
         Cookie cookie = new Cookie("token", token);

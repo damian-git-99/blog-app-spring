@@ -46,10 +46,9 @@ class UserServiceImplTest {
             User user = new User(userId, "username", "email", "password");
             when(userDao.findUserById(userId)).thenReturn(Optional.of(user));
 
-            Optional<User> result = userService.findUserById(userId);
+            User result = userService.findUserById(userId);
             assertThat(result)
-                    .isPresent()
-                    .hasValue(user);
+                    .isNotNull();
             verify(userDao).findUserById(userId);
         }
 
@@ -58,8 +57,9 @@ class UserServiceImplTest {
             Long userId = 2L;
             when(userDao.findUserById(userId)).thenReturn(Optional.empty());
 
-            Optional<User> result = userService.findUserById(userId);
-            assertThat(result).isEmpty();
+            assertThatExceptionOfType(UserNotFoundException.class)
+                    .isThrownBy(() -> userService.findUserById(userId))
+                    .withMessage("User not found: " + userId);
 
             verify(userDao).findUserById(userId);
         }
@@ -166,10 +166,10 @@ class UserServiceImplTest {
             User user = new User(1L, username, "email", "password");
             when(userDao.findUserByUsername(username)).thenReturn(Optional.of(user));
 
-            Optional<User> result = userService.findUserByUsername(username);
+            User result = userService.findUserByUsername(username);
             assertThat(result)
-                    .isPresent()
-                    .hasValue(user);
+                    .isNotNull();
+
             verify(userDao).findUserByUsername(username);
         }
 
@@ -178,8 +178,9 @@ class UserServiceImplTest {
             String username = "nonexistentuser";
             when(userDao.findUserByUsername(username)).thenReturn(Optional.empty());
 
-            Optional<User> result = userService.findUserByUsername(username);
-            assertThat(result).isEmpty();
+            assertThatExceptionOfType(UserNotFoundException.class)
+                    .isThrownBy(() -> userService.findUserByUsername(username))
+                    .withMessage("User not found: " + username);
 
             verify(userDao).findUserByUsername(username);
         }
@@ -195,10 +196,10 @@ class UserServiceImplTest {
             User existingUser = new User(1L, "username", userEmail, "password");
             when(userDao.findUserByEmail(userEmail)).thenReturn(Optional.of(existingUser));
 
-            Optional<User> foundUser = userService.findUserByEmail(userEmail);
+            User foundUser = userService.findUserByEmail(userEmail);
 
-            assertThat(foundUser).isPresent();
-            assertThat(foundUser.get().getEmail()).isEqualTo(userEmail);
+            assertThat(foundUser).isNotNull();
+            assertThat(foundUser.getEmail()).isEqualTo(userEmail);
         }
 
         @Test
@@ -207,9 +208,11 @@ class UserServiceImplTest {
 
             when(userDao.findUserByEmail(userEmail)).thenReturn(Optional.empty());
 
-            Optional<User> foundUser = userService.findUserByEmail(userEmail);
+            assertThatExceptionOfType(UserNotFoundException.class)
+                    .isThrownBy(() -> userService.findUserByEmail(userEmail))
+                    .withMessage("User not found: " + userEmail);
 
-            assertThat(foundUser).isEmpty();
+            verify(userDao).findUserByEmail(userEmail);
         }
 
     }

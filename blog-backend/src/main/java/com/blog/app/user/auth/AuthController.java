@@ -62,11 +62,7 @@ public class AuthController {
 
     @GetMapping("/verify-token")
     ResponseEntity<?> verifyToken(HttpServletResponse response, Principal principal) {
-        Optional<User> optionalUser = userService.findUserByEmail(principal.getName());
-        if (optionalUser.isEmpty()) {
-            return ResponseEntity.badRequest().body("user not found");
-        }
-        User user = optionalUser.get();
+        User user = userService.findUserByEmail(principal.getName());
         String token = jwtService.createToken(user.getEmail(), createClaims(user));
         Cookie cookie = new Cookie("token", token);
         cookie.setMaxAge(60 * 60 * 24 * 365);

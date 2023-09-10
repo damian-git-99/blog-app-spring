@@ -24,9 +24,9 @@ public class UserController {
 
     @GetMapping("/profile")
     public UserInfoResponseDTO userInfoAuthenticated() {
-        return userService.getAuthenticatedUserInfo()
-                .map(UserMapper.INSTANCE::toUserInfoResponseDTO)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        return UserMapper
+                .INSTANCE
+                .toUserInfoResponseDTO(userService.getAuthenticatedUserInfo());
     }
 
     @PutMapping("/profile/{id}")
