@@ -2,9 +2,7 @@ package com.blog.app.user.service;
 
 import com.blog.app.config.security.AuthenticationUtils;
 import com.blog.app.config.security.authentication.JWTAuthentication;
-import com.blog.app.user.dto.UserInfoResponseDTO;
 import com.blog.app.user.dao.UserDao;
-import com.blog.app.user.dto.UserMapper;
 import com.blog.app.user.exceptions.UserAlreadyExistsException;
 import com.blog.app.user.exceptions.UserNotFoundException;
 import com.blog.app.user.model.User;
@@ -43,13 +41,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Optional<UserInfoResponseDTO> findUserById(Long id) {
-        return userDao.findUserById(id)
-                .map(UserMapper.INSTANCE::toUserInfoResponseDTO);
+    public Optional<User> findUserById(Long id) {
+        return userDao.findUserById(id);
     }
 
     @Override
-    public Optional<UserInfoResponseDTO> getAuthenticatedUserInfo() {
+    public Optional<User> getAuthenticatedUserInfo() {
         JWTAuthentication auth = authenticationUtils.getAuthenticatedUser();
         return findUserById(auth.getUserId());
     }
@@ -71,15 +68,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Optional<UserInfoResponseDTO> findUserByUsername(String username) {
-        return userDao.findUserByUsername(username)
-                .map(UserMapper.INSTANCE::toUserInfoResponseDTO);
+    public Optional<User> findUserByUsername(String username) {
+        return userDao.findUserByUsername(username);
     }
 
     @Override
-    public Optional<UserInfoResponseDTO> findUserByEmail(String email) {
-        return userDao.findUserByEmail(email)
-                .map(UserMapper.INSTANCE::toUserInfoResponseDTO);
+    public Optional<User> findUserByEmail(String email) {
+        return userDao.findUserByEmail(email);
     }
 
     @Override

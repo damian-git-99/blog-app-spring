@@ -1,7 +1,6 @@
 package com.blog.app.user.auth;
 
 import com.blog.app.config.security.jwt.JWTService;
-import com.blog.app.user.dto.UserInfoResponseDTO;
 import com.blog.app.user.dto.UserMapper;
 import com.blog.app.user.auth.service.AuthService;
 import com.blog.app.user.model.User;
@@ -32,7 +31,11 @@ public class AuthController {
     private final JWTService jwtService;
 
     @Autowired
-    public AuthController(AuthService authService, UserService userService, JWTService jwtService) {
+    public AuthController(
+            AuthService authService,
+            UserService userService,
+            JWTService jwtService
+    ) {
         this.authService = authService;
         this.userService = userService;
         this.jwtService = jwtService;
@@ -44,9 +47,9 @@ public class AuthController {
             return handleValidationExceptions(br);
         }
         authService.registerUser(user);
-        return ResponseEntity.ok(
-                UserMapper.INSTANCE.toUserInfoResponseDTO(user)
-        );
+        return ResponseEntity
+                .ok()
+                .build();
     }
 
     @PostMapping("/logout")
@@ -59,17 +62,17 @@ public class AuthController {
 
     @GetMapping("/verify-token")
     ResponseEntity<?> verifyToken(HttpServletResponse response, Principal principal) {
-        Optional<UserInfoResponseDTO> optionalUser = userService.findUserByEmail(principal.getName());
+        Optional<User> optionalUser = userService.findUserByEmail(principal.getName());
         if (optionalUser.isEmpty()) {
             return ResponseEntity.badRequest().body("user not found");
         }
-        UserInfoResponseDTO user = optionalUser.get();
+        User user = optionalUser.get();
         String token = jwtService.createToken(user.getEmail(), createClaims(user));
         Cookie cookie = new Cookie("token", token);
         cookie.setMaxAge(60 * 60 * 24 * 365);
         response.addCookie(cookie);
         return ResponseEntity.ok(
-                user
+                UserMapper.INSTANCE.toUserInfoResponseDTO(user)
         );
     }
 

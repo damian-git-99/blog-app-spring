@@ -1,6 +1,7 @@
 package com.blog.app.user.controllers;
 
 import com.blog.app.user.dto.UserInfoResponseDTO;
+import com.blog.app.user.dto.UserMapper;
 import com.blog.app.user.exceptions.UserNotFoundException;
 import com.blog.app.user.model.User;
 import com.blog.app.user.service.UserService;
@@ -24,6 +25,7 @@ public class UserController {
     @GetMapping("/profile")
     public UserInfoResponseDTO userInfoAuthenticated() {
         return userService.getAuthenticatedUserInfo()
+                .map(UserMapper.INSTANCE::toUserInfoResponseDTO)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
