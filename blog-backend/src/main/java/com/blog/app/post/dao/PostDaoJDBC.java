@@ -187,7 +187,6 @@ public class PostDaoJDBC implements PostDao {
             );
             return Optional.ofNullable(post);
         } catch (Exception e) {
-            System.out.println(e);
             return Optional.empty();
         }
     }
