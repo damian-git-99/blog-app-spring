@@ -1,5 +1,7 @@
 package com.blog.app.post.controllers;
 
+import com.blog.app.post.dto.PostMapper;
+import com.blog.app.post.dto.PostResponseDTO;
 import com.blog.app.post.model.Post;
 import com.blog.app.post.service.PostService;
 import jakarta.validation.Valid;
@@ -37,7 +39,9 @@ public class PostController {
             return handleValidationExceptions(br);
         }
         postService.createPost(post, image);
-        return ResponseEntity.ok().build();
+        return ResponseEntity
+                .ok()
+                .build();
     }
 
     @PutMapping("/{id}")
@@ -53,28 +57,39 @@ public class PostController {
 
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
-    Map getRecentlyPosts() {
+    Map<String, List<PostResponseDTO>> getRecentlyPosts() {
         return Map.of(
                 "posts", postService.getRecentlyPublishedPosts()
+                        .stream()
+                        .map(PostMapper.INSTANCE::toPostResponseDTO)
+                        .toList()
         );
     }
 
     @GetMapping("/my-posts")
     @ResponseStatus(HttpStatus.OK)
-    List<Post> getPostsOfAuthenticatedUser() {
-        return postService.getPostsOfAuthenticatedUser();
+    List<PostResponseDTO> getPostsOfAuthenticatedUser() {
+        return postService.getPostsOfAuthenticatedUser()
+                .stream()
+                .map(PostMapper.INSTANCE::toPostResponseDTO)
+                .toList();
     }
 
     @GetMapping("/by-username/{username}")
     @ResponseStatus(HttpStatus.OK)
-    List<Post> getAllPostsByUsername(@PathVariable String username) {
-        return postService.getPostsByUsername(username);
+    List<PostResponseDTO> getAllPostsByUsername(@PathVariable String username) {
+        return postService.getPostsByUsername(username)
+                .stream()
+                .map(PostMapper.INSTANCE::toPostResponseDTO)
+                .toList();
     }
 
     @GetMapping("/{postId}")
     @ResponseStatus(HttpStatus.OK)
-    Post getPostById(@PathVariable("postId") Long postId) {
-        return postService.getPostById(postId);
+    PostResponseDTO getPostById(@PathVariable("postId") Long postId) {
+        return PostMapper
+                .INSTANCE
+                .toPostResponseDTO(postService.getPostById(postId));
     }
 
     @DeleteMapping("/{postId}")
