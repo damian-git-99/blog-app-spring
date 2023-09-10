@@ -1,6 +1,7 @@
 package com.blog.app.config.security.filters;
 
 import com.blog.app.config.security.jwt.JWTService;
+import com.blog.app.user.dto.UserInfoResponseDTO;
 import com.blog.app.user.model.User;
 import com.blog.app.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -76,8 +77,8 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             , Authentication authResult) throws IOException, ServletException {
 
         Map<String, Object> body = new HashMap<>();
-        Optional<User> optionalUser = userService.findUserByEmail(authResult.getName());
-        User user = optionalUser.get();
+        Optional<UserInfoResponseDTO> optionalUser = userService.findUserByEmail(authResult.getName());
+        UserInfoResponseDTO user = optionalUser.get();
 
         String token = jwtService.createToken(authResult.getName(), createClaims(user));
         Cookie cookie = new Cookie("token", token);

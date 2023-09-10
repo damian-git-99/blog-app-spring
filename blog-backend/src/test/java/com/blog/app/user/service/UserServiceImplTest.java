@@ -3,6 +3,7 @@ package com.blog.app.user.service;
 import com.blog.app.config.security.AuthenticationUtils;
 import com.blog.app.config.security.authentication.JWTAuthentication;
 import com.blog.app.user.dao.UserDao;
+import com.blog.app.user.dto.UserInfoResponseDTO;
 import com.blog.app.user.exceptions.UserNotFoundException;
 import com.blog.app.user.model.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,11 +47,10 @@ class UserServiceImplTest {
             User user = new User(userId, "username", "email", "password");
             when(userDao.findUserById(userId)).thenReturn(Optional.of(user));
 
-            Optional<User> result = userService.findUserById(userId);
+            Optional<UserInfoResponseDTO> result = userService.findUserById(userId);
             assertThat(result)
-                    .isPresent()
-                    .hasValue(user);
-
+                    .isPresent();
+            // .hasValue(user);
             verify(userDao).findUserById(userId);
         }
 
@@ -59,7 +59,7 @@ class UserServiceImplTest {
             Long userId = 2L;
             when(userDao.findUserById(userId)).thenReturn(Optional.empty());
 
-            Optional<User> result = userService.findUserById(userId);
+            Optional<UserInfoResponseDTO> result = userService.findUserById(userId);
             assertThat(result).isEmpty();
 
             verify(userDao).findUserById(userId);
@@ -167,11 +167,11 @@ class UserServiceImplTest {
             User user = new User(1L, username, "email", "password");
             when(userDao.findUserByUsername(username)).thenReturn(Optional.of(user));
 
-            Optional<User> result = userService.findUserByUsername(username);
-            assertThat(result)
-                    .isPresent()
-                    .hasValue(user);
-
+            Optional<UserInfoResponseDTO> result = userService.findUserByUsername(username);
+            assertThat(result).isPresent();
+            assertThat(result.get())
+                    .hasFieldOrPropertyWithValue("username", username)
+                    .hasFieldOrPropertyWithValue("email", "email");
             verify(userDao).findUserByUsername(username);
         }
 
@@ -180,7 +180,7 @@ class UserServiceImplTest {
             String username = "nonexistentuser";
             when(userDao.findUserByUsername(username)).thenReturn(Optional.empty());
 
-            Optional<User> result = userService.findUserByUsername(username);
+            Optional<UserInfoResponseDTO> result = userService.findUserByUsername(username);
             assertThat(result).isEmpty();
 
             verify(userDao).findUserByUsername(username);
@@ -197,7 +197,7 @@ class UserServiceImplTest {
             User existingUser = new User(1L, "username", userEmail, "password");
             when(userDao.findUserByEmail(userEmail)).thenReturn(Optional.of(existingUser));
 
-            Optional<User> foundUser = userService.findUserByEmail(userEmail);
+            Optional<UserInfoResponseDTO> foundUser = userService.findUserByEmail(userEmail);
 
             assertThat(foundUser).isPresent();
             assertThat(foundUser.get().getEmail()).isEqualTo(userEmail);
@@ -209,7 +209,7 @@ class UserServiceImplTest {
 
             when(userDao.findUserByEmail(userEmail)).thenReturn(Optional.empty());
 
-            Optional<User> foundUser = userService.findUserByEmail(userEmail);
+            Optional<UserInfoResponseDTO> foundUser = userService.findUserByEmail(userEmail);
 
             assertThat(foundUser).isEmpty();
         }

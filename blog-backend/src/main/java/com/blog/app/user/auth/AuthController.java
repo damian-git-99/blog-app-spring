@@ -1,7 +1,8 @@
 package com.blog.app.user.auth;
 
 import com.blog.app.config.security.jwt.JWTService;
-import com.blog.app.user.auth.dto.UserInfoResponse;
+import com.blog.app.user.dto.UserInfoResponseDTO;
+import com.blog.app.user.dto.UserMapper;
 import com.blog.app.user.auth.service.AuthService;
 import com.blog.app.user.model.User;
 import com.blog.app.user.service.UserService;
@@ -17,8 +18,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import static com.blog.app.common.CommonUtils.handleValidationExceptions;
@@ -46,7 +45,7 @@ public class AuthController {
         }
         authService.registerUser(user);
         return ResponseEntity.ok(
-                new UserInfoResponse(user)
+                UserMapper.INSTANCE.toUserInfoResponseDTO(user)
         );
     }
 
@@ -60,17 +59,17 @@ public class AuthController {
 
     @GetMapping("/verify-token")
     ResponseEntity<?> verifyToken(HttpServletResponse response, Principal principal) {
-        Optional<User> optionalUser = userService.findUserByEmail(principal.getName());
+        Optional<UserInfoResponseDTO> optionalUser = userService.findUserByEmail(principal.getName());
         if (optionalUser.isEmpty()) {
             return ResponseEntity.badRequest().body("user not found");
         }
-        User user = optionalUser.get();
+        UserInfoResponseDTO user = optionalUser.get();
         String token = jwtService.createToken(user.getEmail(), createClaims(user));
         Cookie cookie = new Cookie("token", token);
         cookie.setMaxAge(60 * 60 * 24 * 365);
         response.addCookie(cookie);
         return ResponseEntity.ok(
-                new UserInfoResponse(user)
+                user
         );
     }
 
