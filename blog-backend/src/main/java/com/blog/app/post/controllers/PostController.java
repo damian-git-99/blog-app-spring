@@ -48,8 +48,8 @@ public class PostController {
     @ResponseStatus(HttpStatus.OK)
     void editPost(
             @PathVariable Long id,
-            @RequestBody Post post,
-            @RequestParam("file") MultipartFile image
+            Post post,
+            @RequestParam(name = "file", required = false) MultipartFile image
     ) {
         post.setId(id);
         postService.editPost(post, image);

@@ -76,7 +76,7 @@ public class PostDaoJDBC implements PostDao {
                 "category = ?, " +
                 "time_to_read = ?, " +
                 "isPublish = ?, " +
-                "updated_at = ?, " +
+                "updated_at = ? " +
                 "WHERE id = ?";
         log.info("Executing SQL query: {}", query);
         log.debug("Params: {}, {}, {}, {}, {}, {}, {}, {}, {}",
