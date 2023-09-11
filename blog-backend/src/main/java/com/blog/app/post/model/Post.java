@@ -1,7 +1,9 @@
 package com.blog.app.post.model;
 
 import com.blog.app.user.model.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,7 +25,7 @@ public class Post {
     private String image;
     @NotEmpty
     private String category;
-    @NotEmpty
+    @NotNull
     private Integer time_to_read;
     private boolean isPublish = false;
     private LocalDateTime createdAt;
