@@ -35,21 +35,21 @@ public class UserController {
         userService.editUser(user);
     }
 
-    @PutMapping("/add-favorite-post/{id}")
+    @PostMapping("/add-favorite-post/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void addFavoritePost(@PathVariable Long id) {
         userService.addFavoritePost(id);
     }
 
 
-    @PutMapping("/delete-favorite-post/{id}")
+    @DeleteMapping("/delete-favorite-post/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void removeFavoritePost(@PathVariable Long id) {
         userService.removeFavoritePost(id);
     }
 
 
-    @GetMapping("/is-post-marked-as-favorite/{id}")
+    @GetMapping("/is-favorite-post/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Map<String, Boolean> isPostMarkedAsFavorite(@PathVariable Long id) {
         boolean result = userService.isPostMarkedAsFavorite(id);
