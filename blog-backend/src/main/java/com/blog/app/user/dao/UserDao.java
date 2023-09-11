@@ -17,5 +17,5 @@ public interface UserDao {
     void addFavoritePost(Long postId, Long userId);
     void removeFavoritePost(Long postId, Long userId);
     boolean isPostMarkedAsFavorite(Long postId, Long userId);
-    List<Post> getFavoritePostsById(Long userId);
+    List<Post> getFavoritePostsByUserId(Long userId);
 }

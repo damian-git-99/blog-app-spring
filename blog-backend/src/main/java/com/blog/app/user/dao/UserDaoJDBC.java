@@ -147,7 +147,7 @@ public class UserDaoJDBC implements UserDao {
     }
 
     @Override
-    public List<Post> getFavoritePostsById(Long userId) {
+    public List<Post> getFavoritePostsByUserId(Long userId) {
         String query =
                 "SELECT p.id as id, p.title as title, p.content as content  " +
                         "FROM favorite_posts " +
