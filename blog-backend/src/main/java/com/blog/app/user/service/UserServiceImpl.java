@@ -64,7 +64,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         ensureUsernameAndEmailAreUnique(user.getUsername(), user.getEmail(), oldUser);
         user.setEmail(mergeNullableFields(oldUser.getEmail(), user.getEmail()));
         user.setUsername(mergeNullableFields(oldUser.getUsername(), user.getUsername()));
-        user.setPassword(mergeNullableFields(oldUser.getPassword(), passwordEncoder.encode(user.getPassword())));
+        if (user.getPassword() != null && !user.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
         return userDao.editUser(user);
     }
 
