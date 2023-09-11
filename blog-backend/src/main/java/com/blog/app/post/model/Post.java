@@ -24,7 +24,7 @@ public class Post {
     @NotEmpty
     private String category;
     @NotEmpty
-    private int time_to_read;
+    private Integer time_to_read;
     private boolean isPublish = false;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
