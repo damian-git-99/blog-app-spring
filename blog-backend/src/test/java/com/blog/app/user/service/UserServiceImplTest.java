@@ -1,7 +1,7 @@
 package com.blog.app.user.service;
 
 import com.blog.app.config.security.AuthenticationUtils;
-import com.blog.app.config.security.authentication.JWTAuthentication;
+import com.blog.app.config.security.authentication.AuthenticatedUser;
 import com.blog.app.user.dao.UserDao;
 import com.blog.app.user.exceptions.UserNotFoundException;
 import com.blog.app.user.model.User;
@@ -75,7 +75,7 @@ class UserServiceImplTest {
             User existingUser = new User(userId, "username", "email", "password");
             when(userDao.findUserById(userId)).thenReturn(Optional.of(existingUser));
 
-            JWTAuthentication auth = new JWTAuthentication("username", 1L);
+            AuthenticatedUser auth = new AuthenticatedUser("username", 1L);
 
             when(authenticationUtils.getAuthenticatedUser()).thenReturn(auth);
 
@@ -110,7 +110,7 @@ class UserServiceImplTest {
             User existingUser = new User(userId, "username", "email", "password");
             when(userDao.findUserById(userId)).thenReturn(Optional.of(existingUser));
 
-            JWTAuthentication auth = new JWTAuthentication("username", 2L);
+            AuthenticatedUser auth = new AuthenticatedUser("username", 2L);
             when(authenticationUtils.getAuthenticatedUser()).thenReturn(auth);
 
             User userToEdit = new User(1L, "newUsername", "newEmail", "newPassword");
@@ -128,7 +128,7 @@ class UserServiceImplTest {
             User existingUser = new User(userId, "newUsername", "newEmail", "password");
             when(userDao.findUserById(userId)).thenReturn(Optional.of(existingUser));
 
-            JWTAuthentication auth = new JWTAuthentication("username", 1L);
+            AuthenticatedUser auth = new AuthenticatedUser("username", 1L);
             when(authenticationUtils.getAuthenticatedUser()).thenReturn(auth);
 
             User userToEdit = new User(userId, "newUsername", "newEmail", "newPassword");
@@ -145,7 +145,7 @@ class UserServiceImplTest {
             User existingUser = new User(userId, "username", "newEmail", "password");
             when(userDao.findUserById(userId)).thenReturn(Optional.of(existingUser));
 
-            JWTAuthentication auth = new JWTAuthentication("username", 1L);
+            AuthenticatedUser auth = new AuthenticatedUser("username", 1L);
             when(authenticationUtils.getAuthenticatedUser()).thenReturn(auth);
 
             User userToEdit = new User(userId, "username", "newEmail", "newPassword");

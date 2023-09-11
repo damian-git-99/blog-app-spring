@@ -1,7 +1,7 @@
 package com.blog.app.post.service;
 
 import com.blog.app.config.security.AuthenticationUtils;
-import com.blog.app.config.security.authentication.JWTAuthentication;
+import com.blog.app.config.security.authentication.AuthenticatedUser;
 import com.blog.app.common.image.ImageService;
 import com.blog.app.post.dao.PostDao;
 import com.blog.app.post.exceptions.PostNotFoundException;
@@ -41,7 +41,7 @@ public class PostServiceImplementation implements PostService {
     @Override
     public boolean createPost(Post post, MultipartFile image) {
         log.info("Creating post");
-        JWTAuthentication authenticatedUser = authenticationUtils.getAuthenticatedUser();
+        AuthenticatedUser authenticatedUser = authenticationUtils.getAuthenticatedUser();
         post.setUser(new User(authenticatedUser.getUserId()));
         LocalDateTime now = LocalDateTime.now();
         post.setCreatedAt(now);
@@ -93,7 +93,7 @@ public class PostServiceImplementation implements PostService {
     @Override
     public List<Post> getPostsOfAuthenticatedUser() {
         log.info("Getting posts of authenticated user");
-        JWTAuthentication authenticatedUser = authenticationUtils.getAuthenticatedUser();
+        AuthenticatedUser authenticatedUser = authenticationUtils.getAuthenticatedUser();
         return updatePostImageUrls(postDao.getPostsByUserId(authenticatedUser.getUserId()));
     }
 
@@ -185,7 +185,7 @@ public class PostServiceImplementation implements PostService {
     private boolean isPostOwnedByAuthenticatedUser(Post post) {
         try {
             log.info("Checking if post belongs to authenticated user");
-            JWTAuthentication auth = authenticationUtils.getAuthenticatedUser();
+            AuthenticatedUser auth = authenticationUtils.getAuthenticatedUser();
             return Objects.equals(auth.getUserId(), post.getUserId());
         } catch (Exception e) {
             log.error("Error checking if post belongs to authenticated user");
@@ -223,7 +223,7 @@ public class PostServiceImplementation implements PostService {
         if (!authenticationUtils.isUserAuthenticated()) {
             return false;
         }
-        JWTAuthentication authenticatedUser = authenticationUtils.getAuthenticatedUser();
+        AuthenticatedUser authenticatedUser = authenticationUtils.getAuthenticatedUser();
         return authenticatedUser.getUsername().equals(username);
     }
 }

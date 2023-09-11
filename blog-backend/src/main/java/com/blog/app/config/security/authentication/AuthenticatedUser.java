@@ -8,11 +8,10 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * Custom implementation of the Spring Security Authentication interface for JWT-based authentication.
- * This class represents the authentication state and provides access to token-related information.
+ * Represents an authenticated user in the application.
  */
 @Data
-public class JWTAuthentication implements Authentication {
+public class AuthenticatedUser implements Authentication {
 
     private final String token;
     private boolean isAuthenticated;
@@ -20,7 +19,7 @@ public class JWTAuthentication implements Authentication {
     private String username;
     private Long userId;
 
-    public JWTAuthentication(String token) {
+    public AuthenticatedUser(String token) {
         this.token = token;
         this.isAuthenticated = false;
         this.email = "";
@@ -28,7 +27,7 @@ public class JWTAuthentication implements Authentication {
         this.username = "";
     }
 
-    public JWTAuthentication(String username, Long userId) {
+    public AuthenticatedUser(String username, Long userId) {
         this.username = username;
         this.userId = userId;
         this.token = "";

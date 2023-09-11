@@ -1,6 +1,6 @@
 package com.blog.app.config.security;
 
-import com.blog.app.config.security.authentication.JWTAuthentication;
+import com.blog.app.config.security.authentication.AuthenticatedUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,12 +17,12 @@ public class AuthenticationUtils {
     /**
      * Obtains the authenticated user from the security context.
      *
-     * @return The authenticated user's JWTAuthentication object.
+     * @return The authenticated user's AuthenticatedUser object.
      * @throws RuntimeException if the user is not authenticated.
      */
-    public JWTAuthentication getAuthenticatedUser() {
+    public AuthenticatedUser getAuthenticatedUser() {
         log.debug("Getting authenticated user from security context");
-        JWTAuthentication principal = (JWTAuthentication) SecurityContextHolder
+        AuthenticatedUser principal = (AuthenticatedUser) SecurityContextHolder
                 .getContext().getAuthentication();
 
         if (principal == null) {

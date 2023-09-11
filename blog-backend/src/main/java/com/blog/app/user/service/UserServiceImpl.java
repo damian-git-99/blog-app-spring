@@ -1,7 +1,7 @@
 package com.blog.app.user.service;
 
 import com.blog.app.config.security.AuthenticationUtils;
-import com.blog.app.config.security.authentication.JWTAuthentication;
+import com.blog.app.config.security.authentication.AuthenticatedUser;
 import com.blog.app.user.dao.UserDao;
 import com.blog.app.user.exceptions.UserAlreadyExistsException;
 import com.blog.app.user.exceptions.UserNotFoundException;
@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User getAuthenticatedUserInfo() {
-        JWTAuthentication auth = authenticationUtils.getAuthenticatedUser();
+        AuthenticatedUser auth = authenticationUtils.getAuthenticatedUser();
         return findUserById(auth.getUserId());
     }
 
@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new UserNotFoundException("User not found: " + user.getId());
         }
         User oldUser = userToEdit.get();
-        JWTAuthentication auth = authenticationUtils.getAuthenticatedUser();
+        AuthenticatedUser auth = authenticationUtils.getAuthenticatedUser();
         ensureEditPermissionUser(user, auth);
         ensureUsernameAndEmailAreUnique(user.getUsername(), user.getEmail(), oldUser);
         user.setEmail(mergeNullableFields(oldUser.getEmail(), user.getEmail()));
@@ -84,19 +84,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public void addFavoritePost(Long postId) {
-        JWTAuthentication auth = authenticationUtils.getAuthenticatedUser();
+        AuthenticatedUser auth = authenticationUtils.getAuthenticatedUser();
         userDao.addFavoritePost(postId, auth.getUserId());
     }
 
     @Override
     public void removeFavoritePost(Long postId) {
-        JWTAuthentication auth = authenticationUtils.getAuthenticatedUser();
+        AuthenticatedUser auth = authenticationUtils.getAuthenticatedUser();
         userDao.removeFavoritePost(postId, auth.getUserId());
     }
 
     @Override
     public boolean isPostMarkedAsFavorite(Long postId) {
-        JWTAuthentication auth = authenticationUtils.getAuthenticatedUser();
+        AuthenticatedUser auth = authenticationUtils.getAuthenticatedUser();
         return userDao.isPostMarkedAsFavorite(postId, auth.getUserId());
     }
 
@@ -162,10 +162,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      * Ensures that the authenticated user has permission to edit the specified user.
      *
      * @param user The user to be edited.
-     * @param auth The JWTAuthentication object representing the authenticated user.
+     * @param auth The AuthenticatedUser object representing the authenticated user.
      * @throws RuntimeException If the authenticated user does not have permission to edit the specified user.
      */
-    private void ensureEditPermissionUser(User user, JWTAuthentication auth) {
+    private void ensureEditPermissionUser(User user, AuthenticatedUser auth) {
         if (!Objects.equals(auth.getUserId(), user.getId())) {
             // todo: throw custom exception
             throw new RuntimeException("You are not allowed to edit this user");

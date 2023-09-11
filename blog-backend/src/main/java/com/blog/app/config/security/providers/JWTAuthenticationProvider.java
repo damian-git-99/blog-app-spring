@@ -1,6 +1,6 @@
 package com.blog.app.config.security.providers;
 
-import com.blog.app.config.security.authentication.JWTAuthentication;
+import com.blog.app.config.security.authentication.AuthenticatedUser;
 import com.blog.app.config.security.jwt.JWTService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -26,28 +26,28 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         log.info("Attempting to authenticate by JWT token");
-        log.debug("JWTAuthentication: {}", authentication);
-        JWTAuthentication jwtAuthentication = (JWTAuthentication) authentication;
-        String token = jwtAuthentication.getToken();
+        log.debug("AuthenticatedUser: {}", authentication);
+        AuthenticatedUser authenticatedUser = (AuthenticatedUser) authentication;
+        String token = authenticatedUser.getToken();
         if (!jwtService.validateToken(token)) {
-            return jwtAuthentication;
+            return authenticatedUser;
         }
-        jwtAuthentication.setAuthenticated(true);
+        authenticatedUser.setAuthenticated(true);
         Map<String, Object> claims = jwtService.getClaims(token);
         String subject = (String) claims.get("sub");
-        jwtAuthentication.setName(subject);
-        jwtAuthentication.setEmail((String) claims.get("sub"));
-        jwtAuthentication.setUsername((String) claims.get("username"));
+        authenticatedUser.setName(subject);
+        authenticatedUser.setEmail((String) claims.get("sub"));
+        authenticatedUser.setUsername((String) claims.get("username"));
         Long userId = Long.valueOf((Integer) claims.get("id"));
-        jwtAuthentication.setUserId(userId);
-        log.debug("token data was put in the JWTAuthentication");
-        return jwtAuthentication;
+        authenticatedUser.setUserId(userId);
+        log.debug("token data was put in the AuthenticatedUser");
+        return authenticatedUser;
 
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return JWTAuthentication.class.equals(authentication);
+        return AuthenticatedUser.class.equals(authentication);
     }
 
 }
