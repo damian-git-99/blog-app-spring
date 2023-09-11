@@ -164,14 +164,14 @@ public class PostServiceImplementation implements PostService {
      * @throws PostNotFoundException If the post doesn't belong to the authenticated user.
      */
     private void verifyPostOwnership(Post post) {
-        if (!isPostOwnedByAuthenticatedUser(post)) {
+        if (isPostNotOwnedByAuthenticatedUser(post)) {
             throw new PostNotFoundException("Post not found: " + post.getId());
         }
     }
 
 
     private void validatePostAccess(Post post) {
-        if (!post.isPublish() && !isPostOwnedByAuthenticatedUser(post)) {
+        if (!post.isPublish() && isPostNotOwnedByAuthenticatedUser(post)) {
             throw new PostNotFoundException("Post not found: " + post.getId());
         }
     }
@@ -180,17 +180,12 @@ public class PostServiceImplementation implements PostService {
      * Checks if a post belongs to the authenticated user.
      *
      * @param post The post to be checked.
-     * @return true if the post belongs to the authenticated user, false otherwise.
+     * @return true if the post does not belong to the authenticated user, false otherwise.
      */
-    private boolean isPostOwnedByAuthenticatedUser(Post post) {
-        try {
-            log.info("Checking if post belongs to authenticated user");
-            AuthenticatedUser auth = authenticationUtils.getAuthenticatedUser();
-            return Objects.equals(auth.getUserId(), post.getUserId());
-        } catch (Exception e) {
-            log.error("Error checking if post belongs to authenticated user");
-            return false;
-        }
+    private boolean isPostNotOwnedByAuthenticatedUser(Post post) {
+        log.info("Checking if post belongs to authenticated user");
+        AuthenticatedUser auth = authenticationUtils.getAuthenticatedUser();
+        return !Objects.equals(auth.getUserId(), post.getUserId());
     }
 
     private boolean isImageEmpty(MultipartFile image) {
