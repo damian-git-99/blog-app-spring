@@ -100,7 +100,7 @@ public class PostServiceImplementation implements PostService {
     @Override
     public List<Post> getPostsByUsername(String username) {
         log.info("Getting posts by username: " + username);
-        if (authenticationUtils.isAuthenticatedUser(username)) {
+        if (isAuthenticatedUser(username)) {
             return updatePostImageUrls(postDao.getAllPostsByUsername(username));
         }
         return updatePostImageUrls(postDao.getPublicPostsByUsername(username));
@@ -211,5 +211,19 @@ public class PostServiceImplementation implements PostService {
             log.info("Deleting image of post: " + post.getId());
             imageService.deleteImage(post.getImage());
         }
+    }
+
+    /**
+     * Verifies if the authenticated user matches the provided username.
+     *
+     * @param username The username for which authentication is being verified.
+     * @return true if the authenticated user matches the provided username, false otherwise.
+     */
+    public boolean isAuthenticatedUser(String username) {
+        if (!authenticationUtils.isUserAuthenticated()) {
+            return false;
+        }
+        JWTAuthentication authenticatedUser = authenticationUtils.getAuthenticatedUser();
+        return authenticatedUser.getUsername().equals(username);
     }
 }

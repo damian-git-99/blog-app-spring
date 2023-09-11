@@ -2,6 +2,7 @@ package com.blog.app.config.security;
 
 import com.blog.app.config.security.authentication.JWTAuthentication;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -33,14 +34,18 @@ public class AuthenticationUtils {
     }
 
     /**
-     * Verifies if the authenticated user matches the provided username.
+     * Checks whether a user is authenticated in the current session.
      *
-     * @param username The username for which authentication is being verified.
-     * @return true if the authenticated user matches the provided username, false otherwise.
+     * @return true if the user is authenticated, false otherwise.
      */
-    public boolean isAuthenticatedUser(String username) {
-        JWTAuthentication authenticatedUser = getAuthenticatedUser();
-        return authenticatedUser.getUsername().equals(username);
+    public boolean isUserAuthenticated() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth != null && auth.isAuthenticated() && !isAnonymous(auth);
+    }
+
+    private boolean isAnonymous(Authentication auth) {
+        return auth.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ANONYMOUS"));
     }
 
 }
