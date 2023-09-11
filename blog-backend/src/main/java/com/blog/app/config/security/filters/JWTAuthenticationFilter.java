@@ -1,6 +1,7 @@
 package com.blog.app.config.security.filters;
 
 import com.blog.app.config.security.authentication.AuthenticatedUser;
+import com.blog.app.config.security.jwt.JWTAuthenticationToken;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -36,7 +37,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         if (optionalToken.isPresent()) {
             String token = optionalToken.get();
             log.debug("token found: {}", token);
-            AuthenticatedUser authenticatedUser = new AuthenticatedUser(token);
+            JWTAuthenticationToken authenticatedUser = new JWTAuthenticationToken(token);
             Authentication auth = authenticationManager.authenticate(authenticatedUser);
             if (auth.isAuthenticated()) {
                 log.info("Authentication successful by token");

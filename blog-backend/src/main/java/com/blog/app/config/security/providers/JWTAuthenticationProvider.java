@@ -1,6 +1,7 @@
 package com.blog.app.config.security.providers;
 
 import com.blog.app.config.security.authentication.AuthenticatedUser;
+import com.blog.app.config.security.jwt.JWTAuthenticationToken;
 import com.blog.app.config.security.jwt.JWTService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -27,11 +28,12 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         log.info("Attempting to authenticate by JWT token");
         log.debug("AuthenticatedUser: {}", authentication);
-        AuthenticatedUser authenticatedUser = (AuthenticatedUser) authentication;
-        String token = authenticatedUser.getToken();
+        JWTAuthenticationToken jwtToken = (JWTAuthenticationToken) authentication;
+        String token = jwtToken.getToken();
         if (!jwtService.validateToken(token)) {
-            return authenticatedUser;
+            return jwtToken;
         }
+        AuthenticatedUser authenticatedUser = new AuthenticatedUser();
         authenticatedUser.setAuthenticated(true);
         Map<String, Object> claims = jwtService.getClaims(token);
         String subject = (String) claims.get("sub");
@@ -47,7 +49,7 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return AuthenticatedUser.class.equals(authentication);
+        return JWTAuthenticationToken.class.equals(authentication);
     }
 
 }

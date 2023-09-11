@@ -1,28 +1,21 @@
-package com.blog.app.config.security.authentication;
+package com.blog.app.config.security.jwt;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
 import java.util.Collections;
 
-/**
- * Represents an authenticated user in the application.
- */
 @Data
-@NoArgsConstructor
-public class AuthenticatedUser implements Authentication {
+public class JWTAuthenticationToken implements Authentication {
 
+    private String token;
     private boolean isAuthenticated;
-    private String email;
-    private String username;
-    private Long userId;
 
-    public AuthenticatedUser(String username, Long userId) {
-        this.username = username;
-        this.userId = userId;
+    public JWTAuthenticationToken(String token) {
+        this.token = token;
+        this.isAuthenticated = false;
     }
 
     @Override
@@ -42,7 +35,7 @@ public class AuthenticatedUser implements Authentication {
 
     @Override
     public Object getPrincipal() {
-        return this;
+        return null;
     }
 
     @Override
@@ -57,12 +50,6 @@ public class AuthenticatedUser implements Authentication {
 
     @Override
     public String getName() {
-        // return email from token
-        return email;
+        return null;
     }
-
-    public void setName(String name) {
-        this.email = name;
-    }
-
 }
