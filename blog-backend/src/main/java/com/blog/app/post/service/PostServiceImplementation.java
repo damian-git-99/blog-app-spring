@@ -119,6 +119,7 @@ public class PostServiceImplementation implements PostService {
         log.info("Toggling publication status of post: " + postId);
         Post post = getExistingPostById(postId);
         verifyPostOwnership(post);
+        postDao.togglePublicationStatus(postId);
     }
 
 
