@@ -26,7 +26,6 @@ CREATE TABLE IF NOT EXISTS blog_app.posts
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
--- todo: favorite table user -> post: one to many
 CREATE TABLE IF NOT EXISTS blog_app.favorite_posts
 (
     user_id INT NOT NULL,
