@@ -31,7 +31,7 @@ public class PostController {
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     ResponseEntity<?> createPost(
-            Post post,
+            @Valid Post post,
             BindingResult br,
             @RequestParam(name = "file", required = false) MultipartFile image
     ) {
