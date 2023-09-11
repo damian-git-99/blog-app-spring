@@ -1,6 +1,7 @@
 package com.blog.app.post.dto;
 
 import com.blog.app.user.dto.UserInfoResponseDTO;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -20,4 +21,8 @@ public class PostResponseDTO {
     private LocalDateTime updatedAt;
     private UserInfoResponseDTO user;
 
+    @JsonProperty("isPublish")
+    public boolean isPublish() {
+        return isPublish;
+    }
 }
