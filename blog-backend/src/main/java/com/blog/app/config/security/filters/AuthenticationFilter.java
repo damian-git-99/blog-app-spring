@@ -1,11 +1,12 @@
 package com.blog.app.config.security.filters;
 
 import com.blog.app.config.security.jwt.JWTService;
+import com.blog.app.user.dto.UserInfoResponseDTO;
+import com.blog.app.user.dto.UserMapper;
 import com.blog.app.user.model.User;
 import com.blog.app.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,7 +23,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.blog.app.config.security.jwt.CommonJWTUtils.createClaims;
 
@@ -73,23 +73,19 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest request
             , HttpServletResponse response
             , FilterChain chain
-            , Authentication authResult) throws IOException, ServletException {
+            , Authentication authResult) throws IOException {
 
-        Map<String, Object> body = new HashMap<>();
         User user = userService.findUserByEmail(authResult.getName());
-
         String token = jwtService.createToken(authResult.getName(), createClaims(user));
         Cookie cookie = new Cookie("token", token);
         cookie.setSecure(true);
         cookie.setPath("/");
         response.addCookie(cookie);
 
-        body.put("email", user.getEmail());
-        body.put("username", user.getUsername());
-        body.put("id", user.getId());
+        UserInfoResponseDTO dto = UserMapper.INSTANCE.toUserInfoResponseDTO(user);
 
         response.setContentType("application/json");
-        response.getWriter().write(new ObjectMapper().writeValueAsString(body));
+        response.getWriter().write(new ObjectMapper().writeValueAsString(dto));
         response.setStatus(HttpServletResponse.SC_OK);
         log.info("successful Authentication request: {}", authResult.getName());
     }
@@ -97,7 +93,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request
             , HttpServletResponse response
-            , AuthenticationException failed) throws IOException, ServletException {
+            , AuthenticationException failed) throws IOException {
         Map<String, Object> body = new HashMap<>();
         body.put("error", "Authentication ERROR: incorrect username or password");
 
