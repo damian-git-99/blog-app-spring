@@ -18,7 +18,8 @@ public class CommonUtils {
      * @return The merged value, preferring newValue if it's not null, otherwise oldValue.
      */
     static public String mergeNullableFields(String oldValue, String newValue) {
-        return newValue == null ? oldValue : newValue;
+        if (newValue == null) return oldValue;
+        return newValue.isBlank() ? oldValue : newValue;
     }
 
     /**
