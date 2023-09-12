@@ -70,7 +70,7 @@ public class UserDaoJDBC implements UserDao {
 
     @Override
     public Optional<User> findUserById(Long id) {
-        String query = "SELECT id, username, email FROM users WHERE id = ?";
+        String query = "SELECT * FROM users WHERE id = ?";
         log.info("Executing SQL query: {}", query);
         log.debug("Param id: {}", id);
         try {

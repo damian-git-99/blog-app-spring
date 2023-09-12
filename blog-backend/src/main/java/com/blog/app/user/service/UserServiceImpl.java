@@ -66,7 +66,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setUsername(mergeNullableFields(oldUser.getUsername(), user.getUsername()));
         if (user.getPassword() != null && !user.getPassword().isBlank()) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
+        } else user.setPassword(oldUser.getPassword());
         return userDao.editUser(user);
     }
 
