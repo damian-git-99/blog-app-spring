@@ -215,10 +215,15 @@ public class PostDaoJDBC implements PostDao {
 
     @Override
     public boolean togglePublicationStatus(Long postId) {
-        String query = "UPDATE posts SET isPublish = NOT isPublish WHERE id = ?";
+        String query = "UPDATE posts " +
+                "SET isPublish = CASE " +
+                "WHEN isPublish = 1 THEN 0 " +
+                "ELSE 1 " +
+                "END " +
+                "WHERE id = ?";
         log.info("Executing SQL query: {}", query);
         log.debug("Params: {}", query);
-        int res = jdbc.update(query);
+        int res = jdbc.update(query, postId);
         if (res == 1) log.info("Posts publication status toggled successfully");
         else log.error("Error toggling posts publication status");
         return res == 1;
