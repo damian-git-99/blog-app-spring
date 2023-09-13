@@ -63,7 +63,22 @@ public class SpringSecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/logout").permitAll()
                 .requestMatchers(HttpMethod.POST, "/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/verify-token").authenticated()
-                .requestMatchers("/api/**").authenticated()
+                // user
+                .requestMatchers(HttpMethod.GET, "/users/profile").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/users/profile/{id}").authenticated()
+                .requestMatchers(HttpMethod.POST, "/users/add-favorite-post/{postId}").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/users/add-favorite-post/{postId}").authenticated()
+                .requestMatchers(HttpMethod.GET, "/users/is-favorite-post/{postId}").authenticated()
+                .requestMatchers(HttpMethod.GET, "/users/favorite-posts").authenticated()
+                // post
+                .requestMatchers(HttpMethod.POST, "/posts").authenticated()
+                .requestMatchers(HttpMethod.GET, "/posts").permitAll()
+                .requestMatchers(HttpMethod.GET, "/my-posts").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/{id}").authenticated()
+                .requestMatchers(HttpMethod.GET, "/{id}").anonymous()
+                .requestMatchers(HttpMethod.PUT, "/{id}").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/toggle-status/{id}").authenticated()
+                .requestMatchers(HttpMethod.GET, "/by-username/{username}").authenticated()
                 //.requestMatchers("/secure/info").authenticated()
                 .anyRequest().permitAll();
         http.addFilter(new AuthenticationFilter(authenticationManager, jwtService, userService));
