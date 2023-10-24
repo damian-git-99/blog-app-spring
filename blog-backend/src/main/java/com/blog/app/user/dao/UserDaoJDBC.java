@@ -46,7 +46,7 @@ public class UserDaoJDBC implements UserDao {
             User user = jdbc.queryForObject(
                     query,
                     BeanPropertyRowMapper.newInstance(User.class),
-                    email
+                    email, username
             );
             return Optional.ofNullable(user);
         } catch (Exception e) {

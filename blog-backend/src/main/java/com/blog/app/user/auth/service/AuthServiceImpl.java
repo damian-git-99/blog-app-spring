@@ -119,7 +119,7 @@ public class AuthServiceImpl implements AuthService {
 
             if (optionalUser.get().getEmail().equals(email)
                     && optionalUser.get().getUsername().equals(username)) {
-                throw new UserAlreadyExistsException("Email and username already exists");
+                throw new UserAlreadyExistsException("Email or username already exists");
             }
 
             if (optionalUser.get().getEmail().equals(email)) {
