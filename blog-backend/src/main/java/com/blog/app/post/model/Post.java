@@ -39,4 +39,8 @@ public class Post {
     public long getUserId() {
         return user.getId();
     }
+
+    public void setIsPublish(boolean publish) {
+        isPublish = publish;
+    }
 }

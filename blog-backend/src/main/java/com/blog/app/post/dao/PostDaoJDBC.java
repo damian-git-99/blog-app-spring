@@ -200,7 +200,7 @@ public class PostDaoJDBC implements PostDao {
         post.setImage(rs.getString("image"));
         post.setCategory(rs.getString("category"));
         post.setTime_to_read(rs.getInt("time_to_read"));
-        post.setPublish(rs.getBoolean("isPublish"));
+        post.setIsPublish(rs.getBoolean("isPublish"));
         post.setCreatedAt(rs.getObject("created_at", LocalDateTime.class));
         post.setUpdatedAt(rs.getObject("updated_at", LocalDateTime.class));
         User user = new User(

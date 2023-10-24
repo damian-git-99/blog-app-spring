@@ -4,7 +4,6 @@ import com.blog.app.post.model.Post;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface PostService {
 
