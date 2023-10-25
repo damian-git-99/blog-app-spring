@@ -22,5 +22,6 @@ public interface PostService {
     Post getPostById(Long postId);
 
     void togglePublicationStatus(Long postId);
+    List<Post> getFavoritePostsByAuthenticatedUser();
 
 }

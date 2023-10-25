@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface UserDao {
     Optional<User> findUserByEmail(String email);
     Optional<User> findUserByEmailOrUsername(String email, String username);
-    boolean saveUser(User user);
+    User saveUser(User user);
     Optional<User> findUserById(Long id);
     boolean editUser(User user);
     Optional<User> findUserByUsername(String username);
@@ -17,5 +17,4 @@ public interface UserDao {
     void addFavoritePost(Long postId, Long userId);
     void removeFavoritePost(Long postId, Long userId);
     boolean isPostMarkedAsFavorite(Long postId, Long userId);
-    List<Post> getFavoritePostsByUserId(Long userId);
 }

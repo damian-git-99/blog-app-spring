@@ -2,6 +2,7 @@ package com.blog.app.user.service;
 
 import com.blog.app.config.security.AuthenticationUtils;
 import com.blog.app.config.security.authentication.AuthenticatedUser;
+import com.blog.app.post.model.Post;
 import com.blog.app.user.dao.UserDao;
 import com.blog.app.user.exceptions.UserAlreadyExistsException;
 import com.blog.app.user.exceptions.UserNotFoundException;
@@ -15,10 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static com.blog.app.common.CommonUtils.mergeNullableFields;
 
@@ -31,10 +29,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final AuthenticationUtils authenticationUtils;
 
     @Autowired
-    public UserServiceImpl(
-            UserDao userDao,
-            PasswordEncoder passwordEncoder,
-            AuthenticationUtils authenticationUtils) {
+    public UserServiceImpl(UserDao userDao, PasswordEncoder passwordEncoder, AuthenticationUtils authenticationUtils) {
         this.userDao = userDao;
         this.passwordEncoder = passwordEncoder;
         this.authenticationUtils = authenticationUtils;
@@ -42,8 +37,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User findUserById(Long id) {
-        return userDao.findUserById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
+        return userDao.findUserById(id).orElseThrow(() -> new UserNotFoundException("User not found: " + id));
     }
 
     @Override
@@ -72,16 +66,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User findUserByUsername(String username) {
-        return userDao
-                .findUserByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + username));
+        return userDao.findUserByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found: " + username));
     }
 
     @Override
     public User findUserByEmail(String email) {
-        return userDao
-                .findUserByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + email));
+        return userDao.findUserByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found: " + email));
     }
 
     @Override
@@ -110,19 +100,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new UsernameNotFoundException("User not found");
         }
         User user = optionalUser.get();
-        return createUserDetails(
-                user.getEmail(),
-                user.getPassword(),
-                createEmptyAuthorities()
-        );
+        return createUserDetails(user.getEmail(), user.getPassword(), createEmptyAuthorities());
     }
 
     private Collection<? extends GrantedAuthority> createEmptyAuthorities() {
         return Collections.emptyList();
     }
 
-    private UserDetails createUserDetails(String email, String password,
-                                          Collection<? extends GrantedAuthority> authorities) {
+    private UserDetails createUserDetails(String email, String password, Collection<? extends GrantedAuthority> authorities) {
         return new org.springframework.security.core.userdetails.User(email, password, authorities);
     }
 
@@ -136,28 +121,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      */
     private void ensureUsernameAndEmailAreUnique(String username, String email, User oldUser) {
 
-        if (oldUser.getEmail().equals(email) && oldUser.getUsername().equals(username)) {
-            // If the email and username match the existing user, no uniqueness violation occurs.
-            return;
+        Optional<User> emailExists = this.userDao.findUserByEmail(email);
+
+        if (emailExists.isPresent() && !oldUser.getEmail().equals(email)) {
+            throw new UserAlreadyExistsException("Email already exists");
         }
 
-        Optional<User> optionalUser = userDao.findUserByEmailOrUsername(email, username);
-        if (optionalUser.isPresent()) {
-            log.warn("Username or email already exists");
+        Optional<User> usernameExists = this.userDao.findUserByUsername(username);
 
-            if (optionalUser.get().getEmail().equals(email)
-                    && optionalUser.get().getUsername().equals(username)) {
-                throw new UserAlreadyExistsException("Email and username already exists");
-            }
-
-            if (optionalUser.get().getEmail().equals(email)) {
-                throw new UserAlreadyExistsException("Email already exists");
-            }
-
-            if (optionalUser.get().getUsername().equals(username)) {
-                throw new UserNotFoundException("Username already exists");
-            }
+        if (usernameExists.isPresent() && !oldUser.getUsername().equals(username)) {
+            throw new UserAlreadyExistsException("Username already exists");
         }
+
     }
 
     /**

@@ -5,10 +5,15 @@ import com.blog.app.user.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Repository
 @Slf4j
@@ -40,9 +45,9 @@ public class UserDaoJDBC implements UserDao {
     @Override
     public Optional<User> findUserByEmailOrUsername(String email, String username) {
         try {
-            String query = "SELECT id, username, email FROM users WHERE email = ? OR username = ?";
+            String query = "SELECT id, username, email FROM users WHERE email = ? OR username = ? LIMIT 1";
             log.info("Executing SQL query: {}", query);
-            log.debug("Param email: {}", email);
+            log.debug("Params : {} {}", email, username);
             User user = jdbc.queryForObject(
                     query,
                     BeanPropertyRowMapper.newInstance(User.class),
@@ -55,17 +60,20 @@ public class UserDaoJDBC implements UserDao {
     }
 
     @Override
-    public boolean saveUser(User user) {
+    public User saveUser(User user) {
         String query = "INSERT INTO users (email, password, username) VALUES (?, ?, ?)";
         log.info("Executing SQL query: {}", query);
         log.debug("Param: {}", user);
-        int result = jdbc.update(
-                query,
-                user.getEmail(),
-                user.getPassword(),
-                user.getUsername()
-        );
-        return result == 1;
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbc.update((connection) -> {
+            PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, user.getEmail());
+            ps.setString(2, user.getPassword());
+            ps.setString(3, user.getUsername());
+            return ps;
+        }, keyHolder);
+        user.setId(keyHolder.getKey().longValue());
+        return user;
     }
 
     @Override
@@ -146,24 +154,6 @@ public class UserDaoJDBC implements UserDao {
         }
     }
 
-    @Override
-    public List<Post> getFavoritePostsByUserId(Long userId) {
-        String query =
-                "SELECT p.id as id, p.title as title, p.content as content  " +
-                        "FROM favorite_posts " +
-                        "JOIN posts p ON favorite_posts.user_id = posts.user_id  " +
-                        "WHERE user_id = ?";
-        log.info("Executing SQL query: {}", query);
-        log.debug("Param userId: {}", userId);
-        try {
-            List<Post> posts = jdbc.query(
-                    query,
-                    BeanPropertyRowMapper.newInstance(Post.class),
-                    userId
-            );
-            return posts;
-        } catch (Exception e) {
-            return null;
-        }
-    }
 }
+
+

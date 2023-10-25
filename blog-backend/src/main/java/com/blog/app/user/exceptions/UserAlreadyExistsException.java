@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 @Slf4j
 public class UserAlreadyExistsException extends CustomException {
     public UserAlreadyExistsException(String message) {
-        super(message, HttpStatus.NOT_FOUND);
+        super(message, HttpStatus.BAD_REQUEST);
         log.error(message);
     }
 

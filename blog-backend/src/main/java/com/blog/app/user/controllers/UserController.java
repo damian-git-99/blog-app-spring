@@ -1,5 +1,8 @@
 package com.blog.app.user.controllers;
 
+import com.blog.app.post.dto.PostMapper;
+import com.blog.app.post.dto.PostResponseDTO;
+import com.blog.app.post.service.PostService;
 import com.blog.app.user.dto.UserInfoResponseDTO;
 import com.blog.app.user.dto.UserMapper;
 import com.blog.app.user.model.User;
@@ -8,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -15,10 +19,12 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final PostService postService; // todo: mover ?
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, PostService postService) {
         this.userService = userService;
+        this.postService = postService;
     }
 
     @GetMapping("/profile")
@@ -58,5 +64,12 @@ public class UserController {
         );
     }
 
+    @GetMapping("/favorite-posts")
+    public List<PostResponseDTO> getFavoritePosts() {
+        return postService.getFavoritePostsByAuthenticatedUser()
+                .stream()
+                .map(PostMapper.INSTANCE::toPostResponseDTO)
+                .toList();
+    }
 
 }

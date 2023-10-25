@@ -23,4 +23,5 @@ public interface PostDao {
     Optional<Post> getPostById(Long postId);
 
     boolean togglePublicationStatus(Long postId);
+    List<Post> getFavoritePostsByUserId(Long userId);
 }

@@ -46,13 +46,14 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public void registerUser(User user) {
+    public User registerUser(User user) {
         log.info("Registering user: {}", user.getEmail());
         ensureUsernameAndEmailAreUnique(user.getUsername(), user.getEmail());
         String hashedPassword = this.passwordEncoder.encode(user.getPassword());
         user.setPassword(hashedPassword);
-        userDao.saveUser(user);
+        User userDb = userDao.saveUser(user);
         log.info("User registered successfully: {}", user.getEmail());
+        return userDb;
     }
 
     @Override

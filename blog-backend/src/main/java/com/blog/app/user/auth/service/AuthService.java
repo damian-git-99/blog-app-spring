@@ -4,7 +4,7 @@ import com.blog.app.user.model.User;
 
 public interface AuthService {
 
-    void registerUser(User user);
+    User registerUser(User user);
 
     void recoverPassword(String email);
 

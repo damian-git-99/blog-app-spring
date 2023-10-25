@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -227,5 +228,49 @@ public class PostDaoJDBC implements PostDao {
         if (res == 1) log.info("Posts publication status toggled successfully");
         else log.error("Error toggling posts publication status");
         return res == 1;
+    }
+
+    @Override
+    public List<Post> getFavoritePostsByUserId(Long userId) {
+        String query =
+                "SELECT * " +
+                        "FROM favorite_posts fp " +
+                        "JOIN users u ON fp.user_id = u.id " +
+                        "JOIN posts p ON fp.post_id = p.id " +
+                        "WHERE fp.user_id = ?";
+        log.info("Executing SQL query: {}", query);
+        log.debug("Param userId: {}", userId);
+        try {
+            return jdbc.query(query, rs -> {
+                boolean isFirstRow = true;
+                User user = new User();
+                List<Post> posts = new ArrayList<>();
+                while (rs.next()) {
+                    if (isFirstRow) {
+                        user.setId(rs.getLong("user_id"));
+                        user.setEmail(rs.getString("email"));
+                        user.setUsername(rs.getString("username"));
+                        isFirstRow = false;
+                    }
+                    Post p = new Post();
+                    p.setId(rs.getLong("post_id"));
+                    p.setTitle(rs.getString("title"));
+                    p.setContent(rs.getString("content"));
+                    p.setSummary(rs.getString("summary"));
+                    p.setImage(rs.getString("image"));
+                    p.setCategory(rs.getString("category"));
+                    p.setTime_to_read(rs.getInt("time_to_read"));
+                    p.setIsPublish(rs.getBoolean("isPublish"));
+                    p.setCreatedAt(rs.getObject("created_at", LocalDateTime.class));
+                    p.setUpdatedAt(rs.getObject("updated_at", LocalDateTime.class));
+                    p.setUser(user);
+                    posts.add(p);
+                }
+                return posts;
+            }, userId);
+        } catch (Exception e) {
+            log.debug(e.getMessage());
+            return null;
+        }
     }
 }

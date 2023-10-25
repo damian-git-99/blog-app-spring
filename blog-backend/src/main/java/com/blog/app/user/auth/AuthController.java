@@ -17,7 +17,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.Optional;
 
 import static com.blog.app.common.CommonUtils.handleValidationExceptions;
 import static com.blog.app.config.security.jwt.CommonJWTUtils.createClaims;
@@ -42,15 +41,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    ResponseEntity<?> register(@RequestBody @Valid User user, BindingResult br) {
+    ResponseEntity<?> register(@RequestBody @Valid User user, BindingResult br, HttpServletResponse response) {
         if (br.hasErrors()) {
             return handleValidationExceptions(br);
         }
-        authService.registerUser(user);
-        return ResponseEntity
-                .ok()
-                .build();
+        User userInDB = authService.registerUser(user);
+        return getResponseEntity(user, response, userInDB);
     }
+
 
     @PostMapping("/logout")
     String logout(HttpServletResponse response) {
@@ -63,13 +61,7 @@ public class AuthController {
     @GetMapping("/verify-token")
     ResponseEntity<?> verifyToken(HttpServletResponse response, Principal principal) {
         User user = userService.findUserByEmail(principal.getName());
-        String token = jwtService.createToken(user.getEmail(), createClaims(user));
-        Cookie cookie = new Cookie("token", token);
-        cookie.setMaxAge(60 * 60 * 24 * 365);
-        response.addCookie(cookie);
-        return ResponseEntity.ok(
-                UserMapper.INSTANCE.toUserInfoResponseDTO(user)
-        );
+        return getResponseEntity(user, response, user);
     }
 
     @PostMapping("/recover-password")
@@ -97,6 +89,16 @@ public class AuthController {
     static class UserRequest {
         private String email;
         private String password;
+    }
+
+    private ResponseEntity<?> getResponseEntity(@RequestBody @Valid User user, HttpServletResponse response, User userInDB) {
+        String token = jwtService.createToken(user.getEmail(), createClaims(user));
+        Cookie cookie = new Cookie("token", token);
+        cookie.setMaxAge(60 * 60 * 24 * 365);
+        response.addCookie(cookie);
+        return ResponseEntity.ok(
+                UserMapper.INSTANCE.toUserInfoResponseDTO(userInDB)
+        );
     }
 
 }

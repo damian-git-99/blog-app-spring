@@ -122,6 +122,14 @@ public class PostServiceImplementation implements PostService {
         postDao.togglePublicationStatus(postId);
     }
 
+    @Override
+    public List<Post> getFavoritePostsByAuthenticatedUser() {
+        AuthenticatedUser auth = authenticationUtils.getAuthenticatedUser();
+        return postDao.getFavoritePostsByUserId(auth.getUserId())
+                .stream()
+                .map(this::updatePostImageUrls)
+                .toList();
+    }
 
     /**
      * Updates the image to the full image URL in a Post object.

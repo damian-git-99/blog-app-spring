@@ -1,6 +1,9 @@
 package com.blog.app.user.service;
 
+import com.blog.app.post.model.Post;
 import com.blog.app.user.model.User;
+
+import java.util.List;
 
 
 public interface UserService {
