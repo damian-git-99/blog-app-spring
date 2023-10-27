@@ -5,6 +5,7 @@ import com.blog.app.config.security.authentication.AuthenticatedUser;
 import com.blog.app.common.image.ImageService;
 import com.blog.app.post.dao.PostDao;
 import com.blog.app.post.exceptions.PostNotFoundException;
+import com.blog.app.post.model.Comment;
 import com.blog.app.post.model.Post;
 import com.blog.app.user.model.User;
 import lombok.extern.slf4j.Slf4j;
@@ -129,6 +130,13 @@ public class PostServiceImplementation implements PostService {
                 .stream()
                 .map(this::updatePostImageUrls)
                 .toList();
+    }
+
+    @Override
+    public void createComment(String message, Long postId) {
+        AuthenticatedUser auth = authenticationUtils.getAuthenticatedUser();
+        Comment comment = new Comment(message, postId, new User(auth.getUserId()));
+        postDao.saveComment(comment);
     }
 
     /**

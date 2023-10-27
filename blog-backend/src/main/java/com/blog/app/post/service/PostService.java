@@ -24,4 +24,6 @@ public interface PostService {
     void togglePublicationStatus(Long postId);
     List<Post> getFavoritePostsByAuthenticatedUser();
 
+    void createComment(String message, Long postId);
+
 }

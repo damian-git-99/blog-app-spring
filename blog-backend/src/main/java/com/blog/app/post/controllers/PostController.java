@@ -33,8 +33,11 @@ public class PostController {
     ResponseEntity<?> createPost(
             @Valid Post post,
             BindingResult br,
-            @RequestParam(name = "file", required = false) MultipartFile image
+            @RequestParam(name = "file", required = false) MultipartFile image,
+            @RequestParam(name = "categories") String categories
     ) {
+        System.out.println(post);
+        System.out.println(categories);
         if (br.hasErrors()) {
             return handleValidationExceptions(br);
         }
@@ -102,6 +105,11 @@ public class PostController {
     @ResponseStatus(HttpStatus.OK)
     void togglePublicationStatus(@PathVariable Long postId) {
         postService.togglePublicationStatus(postId);
+    }
+
+    @PostMapping("/{id}/comments")
+    void createComment(@PathVariable Long id, @RequestBody String message){
+        this.postService.createComment(message, id);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.blog.app.post.dao;
 
+import com.blog.app.post.model.Comment;
 import com.blog.app.post.model.Post;
 
 import java.util.List;
@@ -24,4 +25,6 @@ public interface PostDao {
 
     boolean togglePublicationStatus(Long postId);
     List<Post> getFavoritePostsByUserId(Long userId);
+
+    void saveComment(Comment comment);
 }
