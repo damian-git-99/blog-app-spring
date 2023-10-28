@@ -13,10 +13,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -26,6 +25,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JWTService jwtService;
     private final EmailService emailService;
+    private final GoogleVerifier verifier;
 
     @Value("${frontend.base-url}")
     private String frontendBaseUrl;
@@ -35,12 +35,14 @@ public class AuthServiceImpl implements AuthService {
             UserDao userDao,
             PasswordEncoder passwordEncoder,
             JWTService jwtService,
-            EmailService emailService
+            EmailService emailService,
+            GoogleVerifier verifier
     ) {
         this.userDao = userDao;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.emailService = emailService;
+        this.verifier = verifier;
     }
 
 
@@ -54,6 +56,20 @@ public class AuthServiceImpl implements AuthService {
         User userDb = userDao.saveUser(user);
         log.info("User registered successfully: {}", user.getEmail());
         return userDb;
+    }
+
+    @Override
+    public User googleLogin(String clientId) throws GeneralSecurityException, IOException {
+        User u = this.verifier.verify(clientId);
+        Optional<User> user = userDao.findUserByEmail(u.getEmail());
+        if (user.isEmpty()) {
+            String password = UUID.randomUUID().toString();
+            u.setPassword(password);
+            Optional<User> usernameExists = userDao.findUserByUsername(u.getUsername());
+            if (usernameExists.isPresent()) u.setUsername(u.getUsername() + UUID.randomUUID());
+            return this.registerUser(u);
+        }
+        return user.get();
     }
 
     @Override
