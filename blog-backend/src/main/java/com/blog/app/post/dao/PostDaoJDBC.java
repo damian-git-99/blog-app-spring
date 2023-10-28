@@ -196,7 +196,7 @@ public class PostDaoJDBC implements PostDao {
                 Post post1 = null;
                 do {
                     if (post1 == null) {
-                        post1 = mapPost(rs);
+                        post1 = mapPostById(rs);
                     }
                     addComment(post1, rs);
                 } while (rs.next());
@@ -207,6 +207,12 @@ public class PostDaoJDBC implements PostDao {
             System.out.println(e.getLocalizedMessage());
             return Optional.empty();
         }
+    }
+
+    private Post mapPostById (ResultSet rs) throws SQLException {
+        Post post = mapPost(rs);
+        addComment(post, rs);
+        return post;
     }
 
     private Post mapPost(ResultSet rs) throws SQLException {
@@ -227,7 +233,6 @@ public class PostDaoJDBC implements PostDao {
                 rs.getString("email"), ""
         );
         post.setUser(user);
-        addComment(post, rs);
         return post;
     }
 
