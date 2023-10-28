@@ -48,7 +48,12 @@ public class PostDaoJDBC implements PostDao {
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
         log.info("Executing SQL query: {}", query);
-        log.debug("Params: {}, {}, {}, {}, {}, {}, {}, {}, {}, {}", post.getTitle(), post.getContent(), post.getSummary(), post.getImage(), post.getCategory(), post.getTime_to_read(), post.isPublish(), post.getCreatedAt(), post.getUpdatedAt(), post.getUserId());
+        log.debug("Params: {}, {}, {}, {}, {}, {}, {}, {}, {}, {}",
+                post.getTitle(), post.getContent(), post.getSummary(),
+                post.getImage(), post.getCategory(), post.getTime_to_read(),
+                post.isPublish(), post.getCreatedAt(), post.getUpdatedAt(),
+                post.getUserId()
+        );
         KeyHolder keyHolder = new GeneratedKeyHolder();
         int res = jdbc.update((connection) -> {
             PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
@@ -102,8 +107,16 @@ public class PostDaoJDBC implements PostDao {
                     id = ?
                 """;
         log.info("Executing SQL query: {}", query);
-        log.debug("Params: {}, {}, {}, {}, {}, {}, {}, {}, {}", post.getTitle(), post.getContent(), post.getSummary(), post.getImage(), post.getCategory(), post.getTime_to_read(), post.isPublish(), post.getUpdatedAt(), post.getId());
-        int res = jdbc.update(query, post.getTitle(), post.getContent(), post.getSummary(), post.getImage(), post.getCategory(), post.getTime_to_read(), post.isPublish(), post.getUpdatedAt(), post.getId());
+        log.debug("Params: {}, {}, {}, {}, {}, {}, {}, {}, {}",
+                post.getTitle(), post.getContent(), post.getSummary(),
+                post.getImage(), post.getCategory(), post.getTime_to_read(),
+                post.isPublish(), post.getUpdatedAt(), post.getId()
+        );
+        int res = jdbc.update(query,
+                post.getTitle(), post.getContent(), post.getSummary(),
+                post.getImage(), post.getCategory(), post.getTime_to_read(),
+                post.isPublish(), post.getUpdatedAt(), post.getId()
+        );
         return res == 1;
     }
 
@@ -209,7 +222,7 @@ public class PostDaoJDBC implements PostDao {
         }
     }
 
-    private Post mapPostById (ResultSet rs) throws SQLException {
+    private Post mapPostById(ResultSet rs) throws SQLException {
         Post post = mapPost(rs);
         addComment(post, rs);
         return post;
