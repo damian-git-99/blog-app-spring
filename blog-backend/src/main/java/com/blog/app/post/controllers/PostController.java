@@ -33,11 +33,8 @@ public class PostController {
     ResponseEntity<?> createPost(
             @Valid Post post,
             BindingResult br,
-            @RequestParam(name = "file", required = false) MultipartFile image,
-            @RequestParam(name = "categories") String categories
+            @RequestParam(name = "file", required = false) MultipartFile image
     ) {
-        System.out.println(post);
-        System.out.println(categories);
         if (br.hasErrors()) {
             return handleValidationExceptions(br);
         }
@@ -108,7 +105,7 @@ public class PostController {
     }
 
     @PostMapping("/{id}/comments")
-    void createComment(@PathVariable Long id, @RequestBody String message){
+    void createComment(@PathVariable Long id, @RequestBody String message) {
         this.postService.createComment(message, id);
     }
 

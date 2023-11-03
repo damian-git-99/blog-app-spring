@@ -32,7 +32,7 @@ public class PostDaoJDBC implements PostDao {
 
     @Override
     public boolean savePost(Post post) {
-        post.setCategory("XDDDDDDDDDD");
+        post.setCategory("XDDDDDDDDDD"); // todo: remove
         String query = """
                 INSERT INTO posts (
                     title,
@@ -117,11 +117,34 @@ public class PostDaoJDBC implements PostDao {
                 post.getImage(), post.getCategory(), post.getTime_to_read(),
                 post.isPublish(), post.getUpdatedAt(), post.getId()
         );
+        // todo: update categories
+        // todo: 1 delete post categories
+        // todo: 2 add new post categories
+
+        // todo: improved version
+        // todo: 1 delete only categories that are not in the new post
+        // todo: 2 add only categories that are in the new post
+        jdbc.update("DELETE FROM categories WHERE post_id = ?", post.getId());
+        for (Category c : post.getCategories()) {
+            c.setPostId(post.getId());
+            saveCategory(c);
+        }
         return res == 1;
     }
 
     @Override
     public boolean deletePostById(Long id) {
+        // todo: delete categories and comments before
+        String queryComments = "DELETE FROM comments WHERE post_id = ?";
+        log.info("Executing SQL query: {}", queryComments);
+        log.debug("Params: {}", id);
+        jdbc.update(queryComments, id);
+
+        String queryCategories = "DELETE FROM categories WHERE post_id = ?";
+        log.info("Executing SQL query: {}", queryCategories);
+        log.debug("Params: {}", id);
+        jdbc.update(queryCategories, id);
+
         String query = "DELETE FROM posts WHERE id = ?";
         log.info("Executing SQL query: {}", query);
         log.debug("Params: {}", id);
@@ -133,6 +156,7 @@ public class PostDaoJDBC implements PostDao {
 
     @Override
     public List<Post> getRecentlyPublishedPosts() {
+        // todo: add join category
         String query = """
                 SELECT *
                 FROM posts
@@ -149,6 +173,7 @@ public class PostDaoJDBC implements PostDao {
 
     @Override
     public List<Post> getPostsByUserId(Long userId) {
+        // todo: add join category ?
         String query = "SELECT * FROM posts WHERE user_id = ?";
         log.info("Executing SQL query: {}", query);
         log.debug("Params: {}", query);
@@ -158,6 +183,7 @@ public class PostDaoJDBC implements PostDao {
 
     @Override
     public List<Post> getPublicPostsByUsername(String username) {
+        // todo: add join category
         String query = """
                 SELECT *
                 FROM posts
@@ -172,6 +198,7 @@ public class PostDaoJDBC implements PostDao {
 
     @Override
     public List<Post> getAllPostsByUsername(String username) {
+        // todo: add join category
         String query = """
                 SELECT *
                 FROM posts
@@ -185,6 +212,7 @@ public class PostDaoJDBC implements PostDao {
     }
 
     public Optional<Post> getPostById(Long postId) {
+        // todo: add join category
         String query = """
                 SELECT
                 p.id, p.title, p.summary, p.content, p.image,
@@ -196,9 +224,9 @@ public class PostDaoJDBC implements PostDao {
                 FROM posts p
                 INNER JOIN users
                 ON p.user_id = users.id
-                LEFT OUTER JOIN comments c
+                LEFT JOIN comments c
                 ON c.post_id = p.id
-                LEFT OUTER JOIN users u
+                LEFT JOIN users u
                 ON c.user_id = u.id
                 WHERE p.id = ?
                 """;
@@ -246,6 +274,7 @@ public class PostDaoJDBC implements PostDao {
                 rs.getString("email"), ""
         );
         post.setUser(user);
+        addCategories(post);
         return post;
     }
 
@@ -260,6 +289,25 @@ public class PostDaoJDBC implements PostDao {
         userComment.setUsername(commentUsername);
         Comment comment = new Comment(message, userComment, commentCreatedAt);
         post.addComment(comment);
+    }
+
+    private void addCategories(Post post) {
+        String query = "SELECT * FROM categories WHERE post_id = ?";
+        log.info("Executing SQL query: {}", query);
+        log.debug("Params: {}", post.getId());
+        try {
+
+            jdbc.query(query, rs -> {
+                Category c = null;
+                do {
+                    c = new Category(rs.getString("category"));
+                    post.addCategory(c);
+                    c = null;
+                } while (rs.next());
+            }, post.getId());
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
     }
 
     @Override

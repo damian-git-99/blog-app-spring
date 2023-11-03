@@ -51,9 +51,18 @@ public class Post {
         this.comments.add(comment);
     }
 
+    public void addCategory(Category category) {
+        this.categories.add(category);
+    }
+
     public void setCategories(String s) {
-        // todo: remove this from a DTO
-        String s1 = s.replace("[", "").replace("]", "");
+        // todo: move to DTO
+        this.category = s;
+        String s1 = s
+                .replace("\"", "")
+                .replace("[", "")
+                .replace("]", "")
+                .replace("\\", "");
         var list = Arrays.stream(s1.split(","))
                 .map(Category::new)
                 .toList();

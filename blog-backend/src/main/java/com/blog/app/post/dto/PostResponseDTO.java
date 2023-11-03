@@ -1,6 +1,5 @@
 package com.blog.app.post.dto;
 
-import com.blog.app.post.model.Comment;
 import com.blog.app.user.dto.UserInfoResponseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -24,9 +23,16 @@ public class PostResponseDTO {
     private LocalDateTime updatedAt;
     private UserInfoResponseDTO user;
     private List<CommentDTO> comments = new ArrayList<>();
+    private List<CategoryDTO> categories = new ArrayList<>();
 
     @JsonProperty("isPublish")
     public boolean isPublish() {
         return isPublish;
+    }
+
+    public List<String> getCategories() {
+        return categories.stream()
+                .map(CategoryDTO::getCategory)
+                .toList();
     }
 }

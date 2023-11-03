@@ -34,3 +34,4 @@ build/
 
 application-dev.properties
 *.log
+*.gz

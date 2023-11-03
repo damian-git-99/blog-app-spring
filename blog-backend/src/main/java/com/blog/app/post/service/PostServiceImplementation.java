@@ -11,6 +11,7 @@ import com.blog.app.user.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
@@ -56,6 +57,7 @@ public class PostServiceImplementation implements PostService {
     }
 
     @Override
+    @Transactional(readOnly = false)
     public boolean editPost(Post post, MultipartFile image) {
         log.info("Editing post: " + post.getId());
         Post oldPost = getExistingPostById(post.getId());
@@ -77,6 +79,7 @@ public class PostServiceImplementation implements PostService {
 
 
     @Override
+    @Transactional(readOnly = false)
     public boolean deletePostById(Long id) {
         log.info("Deleting post: " + id);
         Post post = getExistingPostById(id);
