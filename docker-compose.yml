@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8.0.19
+    container_name: mysql-container
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_DATABASE: ${DB_USERNAME:-blog_app}
+      MYSQL_USER: ${DB_NAME:-root}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-1234}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-1234}
+    volumes:
+      - data-mysql:/var/lib/mysql
+    restart: always
+  spring-backend:
+    build:
+      context: ./blog-backend
+      dockerfile: ./Dockerfile
+    container_name: spring-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_USERNAME: ${DB_NAME:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-1234}
+      DB_URL: ${DB_URL:-jdbc:mysql://mysql:3306/blog_app?serverTimezone=America/Mexico_City}
+      SERVER_PORT: ${SERVER_PORT:-4000}
+      LOGGING_FILE_PATH: ${LOGGING_FILE_PATH-.}
+      LOGGING_LEVEL: ${LOGGING_LEVEL:-info}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      EMAIL_HOST: ${EMAIL_HOST}
+      EMAIL_PORT: ${EMAIL_PORT}
+      EMAIL_USERNAME: ${EMAIL_USERNAME}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+    ports:
+      - '4000:${SERVER_PORT:-4000}'
+    depends_on:
+      - mysql
+    restart: always
+
+volumes:
+  data-mysql:
