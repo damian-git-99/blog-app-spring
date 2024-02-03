@@ -113,13 +113,7 @@ public class PostDaoJDBC implements PostDao {
                 post.getImage(), post.getTime_to_read(),
                 post.isPublish(), post.getUpdatedAt(), post.getId()
         );
-        // todo: update categories
-        // todo: 1 delete post categories
-        // todo: 2 add new post categories
 
-        // todo: improved version
-        // todo: 1 delete only categories that are not in the new post
-        // todo: 2 add only categories that are in the new post
         jdbc.update("DELETE FROM categories WHERE post_id = ?", post.getId());
         for (Category c : post.getCategories()) {
             c.setPostId(post.getId());
@@ -130,7 +124,6 @@ public class PostDaoJDBC implements PostDao {
 
     @Override
     public boolean deletePostById(Long id) {
-        // todo: delete categories and comments before
         String queryComments = "DELETE FROM comments WHERE post_id = ?";
         log.info("Executing SQL query: {}", queryComments);
         log.debug("Params: {}", id);
@@ -152,7 +145,6 @@ public class PostDaoJDBC implements PostDao {
 
     @Override
     public List<Post> getRecentlyPublishedPosts() {
-        // todo: add join category
         String query = """
                 SELECT *
                 FROM posts
@@ -169,7 +161,6 @@ public class PostDaoJDBC implements PostDao {
 
     @Override
     public List<Post> getPostsByUserId(Long userId) {
-        // todo: add join category ?
         String query = "SELECT * FROM posts WHERE user_id = ?";
         log.info("Executing SQL query: {}", query);
         log.debug("Params: {}", query);
@@ -179,7 +170,6 @@ public class PostDaoJDBC implements PostDao {
 
     @Override
     public List<Post> getPublicPostsByUsername(String username) {
-        // todo: add join category
         String query = """
                 SELECT *
                 FROM posts
@@ -194,7 +184,6 @@ public class PostDaoJDBC implements PostDao {
 
     @Override
     public List<Post> getAllPostsByUsername(String username) {
-        // todo: add join category
         String query = """
                 SELECT *
                 FROM posts
@@ -208,11 +197,10 @@ public class PostDaoJDBC implements PostDao {
     }
 
     public Optional<Post> getPostById(Long postId) {
-        // todo: add join category
         String query = """
                 SELECT
                 p.id, p.title, p.summary, p.content, p.image,
-                p.category, p.time_to_read, p.isPublish,
+                p.time_to_read, p.isPublish,
                 p.user_id, p.created_at,  p.updated_at,
                 users.username, users.email,
                 c.message, c.created_at as comment_created_at,
