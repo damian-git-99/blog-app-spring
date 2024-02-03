@@ -25,7 +25,6 @@ public class Post {
     @NotEmpty
     private String content;
     private String image;
-    private String category;
     @NotNull
     private Integer time_to_read;
     private boolean isPublish = false;
@@ -57,7 +56,6 @@ public class Post {
 
     public void setCategories(String s) {
         // todo: move to DTO
-        this.category = s;
         String s1 = s
                 .replace("\"", "")
                 .replace("[", "")

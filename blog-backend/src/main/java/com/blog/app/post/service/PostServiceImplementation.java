@@ -65,7 +65,6 @@ public class PostServiceImplementation implements PostService {
         post.setTitle(mergeNullableFields(oldPost.getTitle(), post.getTitle()));
         post.setSummary(oldPost.getSummary() == null ? post.getSummary() : oldPost.getSummary());
         post.setContent(oldPost.getContent() == null ? post.getContent() : oldPost.getSummary());
-        post.setCategory(mergeNullableFields(oldPost.getCategory(), post.getCategory()));
         post.setTime_to_read(mergeNullableFields(oldPost.getTime_to_read(), post.getTime_to_read()));
         post.setUpdatedAt(LocalDateTime.now());
         if (isImageNotEmpty(image)) {

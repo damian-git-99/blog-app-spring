@@ -32,25 +32,23 @@ public class PostDaoJDBC implements PostDao {
 
     @Override
     public boolean savePost(Post post) {
-        post.setCategory("XDDDDDDDDDD"); // todo: remove
         String query = """
                 INSERT INTO posts (
                     title,
                     content,
                     summary,
                     image,
-                    category,
                     time_to_read,
                     isPublish,
                     created_at,
                     updated_at,
                     user_id
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
         log.info("Executing SQL query: {}", query);
-        log.debug("Params: {}, {}, {}, {}, {}, {}, {}, {}, {}, {}",
+        log.debug("Params: {}, {}, {}, {}, {}, {}, {}, {}, {}",
                 post.getTitle(), post.getContent(), post.getSummary(),
-                post.getImage(), post.getCategory(), post.getTime_to_read(),
+                post.getImage(), post.getTime_to_read(),
                 post.isPublish(), post.getCreatedAt(), post.getUpdatedAt(),
                 post.getUserId()
         );
@@ -61,12 +59,11 @@ public class PostDaoJDBC implements PostDao {
             ps.setString(2, post.getContent());
             ps.setString(3, post.getSummary());
             ps.setString(4, post.getImage());
-            ps.setString(5, post.getCategory());
-            ps.setInt(6, post.getTime_to_read());
-            ps.setBoolean(7, post.isPublish());
-            ps.setObject(8, post.getCreatedAt());
-            ps.setObject(9, post.getUpdatedAt());
-            ps.setLong(10, post.getUserId());
+            ps.setInt(5, post.getTime_to_read());
+            ps.setBoolean(6, post.isPublish());
+            ps.setObject(7, post.getCreatedAt());
+            ps.setObject(8, post.getUpdatedAt());
+            ps.setLong(9, post.getUserId());
             return ps;
         }, keyHolder);
 
@@ -99,7 +96,6 @@ public class PostDaoJDBC implements PostDao {
                     content = ?,
                     summary = ?,
                     image = ?,
-                    category = ?,
                     time_to_read = ?,
                     isPublish = ?,
                     updated_at = ?
@@ -107,14 +103,14 @@ public class PostDaoJDBC implements PostDao {
                     id = ?
                 """;
         log.info("Executing SQL query: {}", query);
-        log.debug("Params: {}, {}, {}, {}, {}, {}, {}, {}, {}",
+        log.debug("Params: {}, {}, {}, {}, {}, {}, {}, {}",
                 post.getTitle(), post.getContent(), post.getSummary(),
-                post.getImage(), post.getCategory(), post.getTime_to_read(),
+                post.getImage(), post.getTime_to_read(),
                 post.isPublish(), post.getUpdatedAt(), post.getId()
         );
         int res = jdbc.update(query,
                 post.getTitle(), post.getContent(), post.getSummary(),
-                post.getImage(), post.getCategory(), post.getTime_to_read(),
+                post.getImage(), post.getTime_to_read(),
                 post.isPublish(), post.getUpdatedAt(), post.getId()
         );
         // todo: update categories
@@ -263,7 +259,6 @@ public class PostDaoJDBC implements PostDao {
         post.setSummary(rs.getString("summary"));
         post.setContent(rs.getString("content"));
         post.setImage(rs.getString("image"));
-        post.setCategory(rs.getString("category"));
         post.setTime_to_read(rs.getInt("time_to_read"));
         post.setIsPublish(rs.getBoolean("isPublish"));
         post.setCreatedAt(rs.getObject("created_at", LocalDateTime.class));
@@ -357,7 +352,6 @@ public class PostDaoJDBC implements PostDao {
                     p.setContent(rs.getString("content"));
                     p.setSummary(rs.getString("summary"));
                     p.setImage(rs.getString("image"));
-                    p.setCategory(rs.getString("category"));
                     p.setTime_to_read(rs.getInt("time_to_read"));
                     p.setIsPublish(rs.getBoolean("isPublish"));
                     p.setCreatedAt(rs.getObject("created_at", LocalDateTime.class));
