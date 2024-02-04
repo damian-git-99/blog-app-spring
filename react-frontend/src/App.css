@@ -1,0 +1,23 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  line-height: 1.5;
+  /* background: #121212;
+  color: #f2f2f2; */
+}
+
+h2 {
+  font-weight: 700;
+}
+
+.img {
+  height: 12rem;
+  width: 100%;
+  object-fit: contain;
+}
+
+.img-header {
+  height: 26rem;
+  width: 100%;
+  object-fit: cover;
+  object-position: 0% 50%;
+}

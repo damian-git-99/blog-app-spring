@@ -26,7 +26,7 @@ services:
       SERVER_PORT: ${SERVER_PORT:-4000}
       LOGGING_FILE_PATH: ${LOGGING_FILE_PATH-.}
       LOGGING_LEVEL: ${LOGGING_LEVEL:-info}
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      FRONTEND_URL: ${FRONTEND_URL:-"http://localhost:3000"}
       EMAIL_HOST: ${EMAIL_HOST}
       EMAIL_PORT: ${EMAIL_PORT}
       EMAIL_USERNAME: ${EMAIL_USERNAME}
@@ -40,6 +40,15 @@ services:
     depends_on:
       - mysql
     restart: always
+  react-frontend:
+    container_name: react-frontend
+    build:
+      context: ./react-frontend
+      dockerfile: ./Dockerfile
+    ports:
+      - 3000:80
+    depends_on:
+      - spring-backend
 
 volumes:
   data-mysql:
